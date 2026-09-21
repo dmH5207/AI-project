@@ -1,0 +1,45 @@
+/* 基础样式，先能看，后续可以自己调整颜色/布局 */
+
+body {
+  font-family: "Microsoft YaHei", sans-serif;
+  background: #f5f6f8;
+  margin: 0;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.center {
+  text-align: center;
+}
+
+button {
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+.dimension-label {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.feedback {
+  font-size: 14px;
+  color: #4a6cf7;
+  margin-bottom: 16px;
+  min-height: 20px;
+}
