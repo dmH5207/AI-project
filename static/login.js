@@ -25,6 +25,27 @@
   var forgotUsername = document.getElementById("forgotUsername");
   var forgotMessage = document.getElementById("forgotMessage");
 
+  // ========= 手机号校验函数 + 实时输入监听 =========
+  function getPhoneError(phone) {
+    if (!phone) return "请输入手机号";
+    if (!/^1\d{10}$/.test(phone)) return "手机号格式错误";
+    return "";
+  }
+  window.getPhoneError = getPhoneError;
+
+  phoneInput.addEventListener("input", function () {
+    var val = this.value.trim();
+    var err = getPhoneError(val);
+    if (err) {
+      showMsg(loginMessage, err, "error");
+    } else {
+      showMsg(loginMessage, "", "");
+    }
+  });
+  // ======================================================
+
+  // ---------- 切换登录/注册 ----------
+
   toRegister.addEventListener("click", function (e) {
     e.preventDefault();
     loginSection.style.display = "none";
@@ -37,15 +58,45 @@
     loginSection.style.display = "";
   });
 
+  // ---------- 密码显示/隐藏 · 线条图标切换 ----------
+
+  var eyeOpenSVG =
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>' +
+      '<circle cx="12" cy="12" r="3"/>' +
+    '</svg>';
+
+  var eyeClosedSVG =
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>' +
+      '<path d="M3 3l18 18"/>' +
+    '</svg>';
+
+  // 初始状态：密码隐藏，按钮显示“闭眼”图标
+  passwordInput.type = "password";
+  togglePassword.innerHTML = eyeClosedSVG;
+  togglePassword.setAttribute("aria-label", "显示密码");
+
   togglePassword.addEventListener("click", function () {
     if (passwordInput.type === "password") {
       passwordInput.type = "text";
-      togglePassword.textContent = "🙈";
+      togglePassword.innerHTML = eyeOpenSVG;
+      togglePassword.setAttribute("aria-label", "隐藏密码");
     } else {
       passwordInput.type = "password";
-      togglePassword.textContent = "👁️";
+      togglePassword.innerHTML = eyeClosedSVG;
+      togglePassword.setAttribute("aria-label", "显示密码");
     }
   });
+
+  // ---------- 消息提示 ----------
+
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = "login-message " + type;
+  }
+
+  // ---------- 登录提交 ----------
 
   loginForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -89,6 +140,8 @@
       });
   });
 
+  // ---------- 注册提交 ----------
+
   registerForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var username = regUsername.value.trim();
@@ -131,10 +184,7 @@
       });
   });
 
-  function showMsg(el, text, type) {
-    el.textContent = text;
-    el.className = "login-message " + type;
-  }
+  // ---------- 忘记密码 ----------
 
   forgotPasswordLink.addEventListener("click", function (e) {
     e.preventDefault();
