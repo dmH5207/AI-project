@@ -43,3 +43,317 @@ button {
   margin-bottom: 16px;
   min-height: 20px;
 }
+
+.login-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #e0f7fa 0%, #b2dfdb 30%, #80cbc4 60%, #a5d6a7 100%);
+}
+
+.login-wrapper {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 36px 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.login-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.login-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #999;
+}
+
+.role-tabs {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 24px;
+}
+
+.role-tab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin: 0;
+  border-radius: 0;
+}
+
+.role-tab.active {
+  background: #4a6cf7;
+  color: #fff;
+}
+
+.login-form .form-group {
+  margin-bottom: 18px;
+}
+
+.login-form .form-group label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.input-wrapper input:focus {
+  border-color: #4a6cf7;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  margin: 0;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  cursor: pointer;
+}
+
+.remember-me input {
+  margin: 0;
+}
+
+.forgot-password {
+  color: #4a6cf7;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #26a69a, #66bb6a);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  margin-top: 0;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-message {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+.login-message.success {
+  color: #52c41a;
+}
+
+.login-message.error {
+  color: #f5222d;
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 32px;
+  width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #333;
+}
+
+.modal-card p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #888;
+}
+
+.modal-card .form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.modal-card .form-group input:focus {
+  border-color: #4a6cf7;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.btn-confirm {
+  background: #4a6cf7;
+  color: #fff;
+}
+
+.btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.forgot-message {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 13px;
+  min-height: 18px;
+}
+
+.forgot-message.success {
+  color: #52c41a;
+}
+
+.forgot-message.error {
+  color: #f5222d;
+}
+
+.switch-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #888;
+}
+
+.switch-link a {
+  color: #26a69a;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+.role-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.role-select:focus {
+  border-color: #26a69a;
+}

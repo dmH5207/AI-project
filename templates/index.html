@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI智能测评系统 - 登录</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login-body">
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">🤖</div>
+        <h1>AI智能测评系统</h1>
+        <p class="login-subtitle">全面评估你的AI素养能力</p>
+      </div>
+
+      <div id="loginSection">
+        <form id="loginForm" class="login-form">
+          <input type="hidden" id="loginRole" value="phone">
+
+          <div class="form-group">
+            <label for="phone">手机号</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="phone" name="phone" placeholder="请输入手机号" maxlength="11" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">密码</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
+              <button type="button" class="toggle-password" id="togglePassword">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="loginRoleSelect">身份</label>
+            <select id="loginRoleSelect" class="role-select">
+              <option value="student">学生</option>
+              <option value="admin">管理员</option>
+            </select>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" id="rememberMe"> 记住我
+            </label>
+            <a href="#" class="forgot-password" id="forgotPasswordLink">忘记密码？</a>
+          </div>
+
+          <button type="submit" class="login-btn" id="loginBtn">登 录</button>
+
+          <div class="login-message" id="loginMessage"></div>
+        </form>
+
+        <div class="switch-link">
+          没有账号？<a href="#" id="toRegister">立即注册</a>
+        </div>
+      </div>
+
+      <div id="registerSection" style="display:none;">
+        <form id="registerForm" class="login-form">
+          <div class="form-group">
+            <label for="regUsername">账号</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" id="regUsername" name="regUsername" placeholder="请设置账号" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regPhone">手机号</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="regPhone" name="regPhone" placeholder="请输入手机号" maxlength="11" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regPassword">密码</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="regPassword" name="regPassword" placeholder="请设置密码（至少6位）" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regConfirm">确认密码</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="regConfirm" name="regConfirm" placeholder="请再次输入密码" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regRole">身份</label>
+            <select id="regRole" class="role-select">
+              <option value="student">学生</option>
+              <option value="admin">管理员</option>
+            </select>
+          </div>
+
+          <button type="submit" class="login-btn" id="registerBtn">注 册</button>
+
+          <div class="login-message" id="registerMessage"></div>
+        </form>
+
+        <div class="switch-link">
+          已有账号？<a href="#" id="toLogin">返回登录</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-card">
+      <h2>忘记密码</h2>
+      <p>请输入你的账号，管理员将帮你重置密码。</p>
+      <div class="form-group">
+        <input type="text" id="forgotUsername" placeholder="请输入你的账号">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="forgotCancel">取消</button>
+        <button class="btn-confirm" id="forgotConfirm">提交</button>
+      </div>
+      <div class="forgot-message" id="forgotMessage"></div>
+    </div>
+  </div>
+
+  <script src="/static/login.js"></script>
+</body>
+</html>
