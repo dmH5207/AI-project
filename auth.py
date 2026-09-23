@@ -1,0 +1,95 @@
+"""
+用户认证：登录、注册、忘记密码
+用户数据从 users.json 读写
+"""
+import os
+from flask import session, request, jsonify
+from storage import load_json, save_json
+
+USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
+
+
+# ---------- 用户读写 ----------
+
+def load_users():
+    """读 users.json，返回 {username: {...}}"""
+    return {u["username"]: u for u in load_json(USERS_FILE, [])}
+
+
+def save_users(users_dict):
+    """写回 users.json"""
+    save_json(USERS_FILE, list(users_dict.values()))
+
+
+# 启动时加载一次（当前内存里的用户）
+USERS = load_users()
+
+
+# ---------- 路由 ----------
+
+def register_auth_routes(app):
+
+    @app.route("/api/login", methods=["POST"])
+    def login():
+        data = request.get_json()
+        username = data.get("username", "")
+        phone = data.get("phone", "")
+        password = data.get("password", "")
+        role = data.get("role", "student")
+
+        # 手机号登录
+        if phone:
+            for uname, uinfo in USERS.items():
+                if (uinfo.get("phone") == phone
+                        and uinfo.get("password") == password
+                        and uinfo.get("role") == role):
+                    session["username"] = uname
+                    session["role"] = role
+                    redirect = "/quiz" if role == "student" else "/wrong"
+                    return jsonify({"success": True, "redirect": redirect})
+            return jsonify({"success": False, "message": "手机号、密码或身份错误"})
+
+        # 账号登录
+        user = USERS.get(username)
+        if user and user.get("password") == password and user.get("role") == role:
+            session["username"] = username
+            session["role"] = role
+            redirect = "/quiz" if role == "student" else "/wrong"
+            return jsonify({"success": True, "redirect": redirect})
+        return jsonify({"success": False, "message": "账号或密码错误"})
+
+    @app.route("/api/register", methods=["POST"])
+    def register():
+        data = request.get_json()
+        username = data.get("username", "").strip()
+        phone = data.get("phone", "").strip()
+        password = data.get("password", "")
+        role = data.get("role", "student")
+
+        if not username or not phone or not password:
+            return jsonify({"success": False, "message": "请填写完整信息"})
+        if username in USERS:
+            return jsonify({"success": False, "message": "该账号已存在"})
+        for u in USERS.values():
+            if u.get("phone") == phone:
+                return jsonify({"success": False, "message": "该手机号已注册"})
+
+        USERS[username] = {
+            "username": username,
+            "password": password,
+            "role": role,
+            "phone": phone,
+        }
+        save_users(USERS)
+
+        return jsonify({"success": True, "message": "注册成功"})
+
+    @app.route("/api/forgot_password", methods=["POST"])
+    def forgot_password():
+        data = request.get_json()
+        username = data.get("username", "").strip()
+        if username in USERS:
+            USERS[username]["reset_requested"] = True
+            save_users(USERS)
+            return jsonify({"success": True, "message": "已记录，请联系管理员重置密码"})
+        return jsonify({"success": False, "message": "该账号不存在"})

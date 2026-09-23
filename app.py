@@ -1,19 +1,17 @@
 """
 后端主程序（Python / Flask）
-负责：接收前端发来的请求 -> 处理逻辑（判分、调用AI等）-> 把结果返回给前端
+只负责：创建 app、页面路由、注册各模块、启动
 """
 
-from flask import Flask, render_template, session, request, jsonify
+from flask import Flask, render_template
+from auth import register_auth_routes
+from quiz import register_quiz_routes
+from wrong import register_wrong_routes
+from profile import register_profile_routes
+from admin_tools import register_admin_routes
 
 app = Flask(__name__)
 app.secret_key = "换成任意一串随机字符串"
-
-USERS = {
-    "admin": {"password": "admin123", "role": "admin", "phone": "13800000001"},
-    "student": {"password": "student123", "role": "student", "phone": "13800000002"},
-}
-
-# TODO 1：在这里加载题库数据
 
 
 @app.route("/")
@@ -26,90 +24,28 @@ def quiz():
     return render_template("quiz.html")
 
 
-@app.route("/report")
-def report():
-    return render_template("report.html")
+@app.route("/wrong")
+def wrong():
+    return render_template("wrong.html")
 
 
-@app.route("/api/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data.get("username", "")
-    phone = data.get("phone", "")
-    password = data.get("password", "")
-    role = data.get("role", "student")
-
-    if phone:
-        for uname, uinfo in USERS.items():
-            if uinfo.get("phone") == phone and uinfo["password"] == password and uinfo["role"] == role:
-                session["username"] = uname
-                session["role"] = role
-                redirect = "/quiz" if role == "student" else "/report"
-                return jsonify({"success": True, "redirect": redirect})
-        return jsonify({"success": False, "message": "手机号、密码或身份错误"})
-
-    user = USERS.get(username)
-    if user and user["password"] == password and user["role"] == role:
-        session["username"] = username
-        session["role"] = role
-        redirect = "/quiz" if role == "student" else "/report"
-        return jsonify({"success": True, "redirect": redirect})
-    else:
-        return jsonify({"success": False, "message": "账号或密码错误"})
+@app.route("/me")
+def me():
+    return render_template("me.html")
 
 
-@app.route("/api/register", methods=["POST"])
-def register():
-    data = request.get_json()
-    username = data.get("username", "")
-    phone = data.get("phone", "")
-    password = data.get("password", "")
-    role = data.get("role", "student")
-
-    if not username or not phone or not password:
-        return jsonify({"success": False, "message": "请填写完整信息"})
-    if username in USERS:
-        return jsonify({"success": False, "message": "该账号已存在"})
-    for u in USERS.values():
-        if u.get("phone") == phone:
-            return jsonify({"success": False, "message": "该手机号已注册"})
-
-    USERS[username] = {"password": password, "role": role, "phone": phone}
-    return jsonify({"success": True, "message": "注册成功"})
-
-
-@app.route("/api/forgot_password", methods=["POST"])
-def forgot_password():
-    data = request.get_json()
-    username = data.get("username", "")
-    if username in USERS:
-        return jsonify({"success": True, "message": "已记录，请联系管理员重置密码"})
-    else:
-        return jsonify({"success": False, "message": "该账号不存在"})
-
-
-@app.route("/api/start", methods=["POST"])
-def start():
-    # TODO：初始化session，返回第一题数据
-    pass
-
-
-@app.route("/api/answer", methods=["POST"])
-def answer():
-    data = request.get_json()
-    question_id = data.get("question_id")
-    user_answer = data.get("answer")
-
-    # TODO：判分逻辑
-
-    pass
-
-
-@app.route("/api/report_data")
-def report_data():
-    # TODO：返回汇总得分
-    pass
+# 注册各模块
+register_auth_routes(app)
+register_quiz_routes(app)
+register_wrong_routes(app)
+register_profile_routes(app)
+register_admin_routes(app)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "reset":
+        from admin_tools import reset_password_cli
+        reset_password_cli()
+    else:
+        app.run(debug=True)

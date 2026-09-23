@@ -1,0 +1,20 @@
+[
+  {
+    "username": "admin",
+    "password": "admin123",
+    "role": "admin",
+    "phone": "13800000001"
+  },
+  {
+    "username": "student",
+    "password": "student123",
+    "role": "student",
+    "phone": "13800000002"
+  },
+  {
+    "username": "DengMingHui",
+    "password": "Dmh1887181@",
+    "role": "student",
+    "phone": "18871811052"
+  }
+]
