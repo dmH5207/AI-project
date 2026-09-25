@@ -49,11 +49,17 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.success) {
-          alert(data.message || "加载失败");
+          alert(data.message || t("loadFail"));
           return;
         }
 
-        if (data.greeting) greeting.textContent = data.greeting;
+        if (data.greeting) {
+          if (data.greeting.notLoggedIn) {
+            greeting.textContent = t("pleaseLogin");
+          } else {
+            greeting.textContent = t(data.greeting.timeKey) + "，" + data.greeting.display + "！" + t("greetingSuffix");
+          }
+        }
 
         modeGrid.innerHTML = "";
         data.modes.forEach(function (m) {
@@ -63,18 +69,18 @@
 
           var statHTML = "";
           if (m.count === 0) {
-            statHTML = "还没有练习记录";
+            statHTML = t("noRecord");
           } else if (m.last === null || m.last === undefined) {
-            statHTML = "已练 <strong>" + m.count + "</strong> 次";
+            statHTML = t("practiced") + " <strong>" + m.count + "</strong> " + t("times");
           } else {
-            statHTML = "已练 <strong>" + m.count + "</strong> 次 · 上次 <strong>" + m.last + "</strong> 分";
+            statHTML = t("practiced") + " <strong>" + m.count + "</strong> " + t("times") + " · " + t("lastScore") + " <strong>" + m.last + "</strong> " + t("scoreUnit");
           }
 
           card.innerHTML =
             '<div class="mode-icon">' + ICONS[m.key] + '</div>' +
             '<div>' +
-              '<div class="mode-title">' + m.name + '</div>' +
-              '<div class="mode-desc">' + m.desc + '</div>' +
+              '<div class="mode-title">' + t(m.nameKey) + '</div>' +
+              '<div class="mode-desc">' + t(m.descKey) + '</div>' +
             '</div>' +
             '<div class="mode-stat">' + statHTML + '</div>';
 
@@ -97,7 +103,7 @@
         });
       })
       .catch(function () {
-        alert("网络错误，请刷新重试");
+        alert(t("networkRetry"));
       });
   }
 
@@ -112,7 +118,7 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.success) {
-          alert(data.message || "无法开始答题");
+          alert(data.message || t("cannotStart"));
           return;
         }
         totalQuestions = data.total;
@@ -120,7 +126,7 @@
         renderQuestion(data.question, 0);
       })
       .catch(function () {
-        alert("网络错误，请刷新重试");
+        alert(t("networkRetry"));
       });
   }
 
@@ -131,9 +137,9 @@
     currentIndex = index;
     selectedAnswer = null;
 
-    progressText.textContent = "第 " + (index + 1) + " / " + totalQuestions + " 题";
+    progressText.textContent = (index + 1) + " / " + totalQuestions;
     progressFill.style.width = ((index + 1) / totalQuestions * 100) + "%";
-    dimensionLabel.textContent = "维度：" + (q.dimension || "—");
+    dimensionLabel.textContent = (q.dimension || "—") + " · " + t("dimension");
     questionText.textContent = q.question;
 
     optionsBox.innerHTML = "";
@@ -155,7 +161,7 @@
     });
 
     nextBtn.disabled = true;
-    nextBtn.textContent = (index + 1 === totalQuestions) ? "提交" : "下一题";
+    nextBtn.textContent = (index + 1 === totalQuestions) ? t("submit") : t("nextQ");
   }
 
   // ---------- 下一题 / 提交 ----------
@@ -191,7 +197,7 @@
         }
       })
       .catch(function () {
-        alert("网络错误");
+        alert(t("netErr"));
       });
   });
 
@@ -208,10 +214,14 @@
         quizArea.style.display = "none";
         resultArea.style.display = "";
         scoreNum.textContent = data.score;
-        resultDetail.textContent = "共 " + data.total + " 题，答对 " + data.correct + " 题";
+        if (window.currentLang === "en") {
+          resultDetail.textContent = data.total + " questions, " + data.correct + " correct";
+        } else {
+          resultDetail.textContent = "共 " + data.total + " 题，答对 " + data.correct + " 题";
+        }
       })
       .catch(function () {
-        alert("网络错误");
+        alert(t("netErr"));
       });
   }
 
@@ -231,5 +241,12 @@
 
   // ---------- 启动 ----------
 
+  function t(key) { return window.t(key); }
+
+  window.applyLang();
   loadModes();
+
+  window.addEventListener("langChanged", function () {
+    loadModes();
+  });
 })();

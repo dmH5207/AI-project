@@ -16,5 +16,12 @@
     "password": "Dmh1887181@",
     "role": "student",
     "phone": "18871811052"
+  },
+  {
+    "username": "xfj",
+    "password": "123456",
+    "role": "student",
+    "phone": "13875346876",
+    "avatar": "/static/avatars/xfj_1816961d.jpg"
   }
 ]

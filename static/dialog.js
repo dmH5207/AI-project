@@ -26,7 +26,7 @@
 
     var avatar = document.createElement("div");
     avatar.className = "msg-avatar";
-    avatar.textContent = role === "ai" ? "AI" : "我";
+    avatar.textContent = role === "ai" ? "AI" : (window.currentLang === "en" ? "Me" : "我");
 
     var bubble = document.createElement("div");
     bubble.className = "msg-bubble";
@@ -92,7 +92,7 @@
     answerInput.style.height = "auto";
     isWaiting = true;
     updateSendBtn();
-    inputHint.textContent = "AI 正在思考...";
+    inputHint.textContent = t("aiThinking");
     setTimeout(function () { if (isWaiting) addTyping(); }, 200);
 
     fetch("/api/dialog/reply", {
@@ -116,13 +116,13 @@
         addMessage("ai", data.reply);
 
         if (data.finished) {
-          progressText.textContent = "已完成 · 6 / 6 轮";
-          inputHint.textContent = "练习完成";
+          progressText.textContent = (window.currentLang === "en" ? "Done" : "已完成") + " · 6 / 6";
+          inputHint.textContent = t("practiceDone");
           updateSendBtn();
           showReport();
         } else {
           progressText.textContent =
-            "第 " + (currentRound + 1) + " / " + totalRounds + " 轮 · " + data.dimension;
+            t("round") + " " + (currentRound + 1) + " / " + totalRounds + " " + t("roundUnit") + " · " + data.dimension;
           updateSendBtn();
         }
       })
@@ -130,7 +130,7 @@
         isWaiting = false;
         removeTyping();
         inputHint.textContent = "";
-        addMessage("ai", "网络错误，请稍后重试");
+        addMessage("ai", t("netErr"));
         updateSendBtn();
       });
   }
@@ -145,7 +145,7 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.success) {
-          alert("生成报告失败");
+          alert(t("generateReportFail"));
           return;
         }
 
@@ -170,7 +170,7 @@
 
         reportOverlay.classList.add("show");
       })
-      .catch(function () { alert("网络错误"); });
+      .catch(function () { alert(t("netErr")); });
   }
 
   function renderScoreTable(scores, total, max) {
@@ -189,7 +189,7 @@
     var totalRow = document.createElement("div");
     totalRow.className = "score-row total";
     totalRow.innerHTML =
-      '<span class="score-dim">总分</span>' +
+      '<span class="score-dim">' + (window.currentLang === "en" ? "Total" : "总分") + '</span>' +
       '<span class="score-num">' + (total || 0) + ' / ' + (max || 100) + '</span>';
     reportScoreTable.appendChild(totalRow);
   }
@@ -283,19 +283,22 @@
       .then(function (data) {
         removeTyping();
         if (!data.success) {
-          addMessage("ai", data.message || "无法开始对话");
+          addMessage("ai", data.message || t("cannotStartDialog"));
           return;
         }
         currentRound = 0;
-        progressText.textContent = "第 1 / " + totalRounds + " 轮 · " + data.dimension;
+        progressText.textContent = t("round") + " 1 / " + totalRounds + " " + t("roundUnit") + " · " + data.dimension;
         addMessage("ai", data.question);
         updateSendBtn();
       })
       .catch(function () {
         removeTyping();
-        addMessage("ai", "网络错误，请刷新重试");
+        addMessage("ai", t("networkRetry"));
       });
   }
 
+  function t(key) { return window.t(key); }
+
+  window.applyLang();
   startDialog();
 })();
