@@ -16,7 +16,7 @@
       </svg>
     </a>
     <div class="header-center">
-      <h1 class="dialog-title">对话式练习</h1>
+      <h1 class="dialog-title" data-i18n="dialogTitle">对话式练习</h1>
       <p class="dialog-progress" id="progressText">第 1 / 6 轮 · AI基础认知</p>
     </div>
     <div class="header-right"></div>
@@ -26,7 +26,7 @@
 
   <footer class="input-area" id="inputArea">
     <div class="input-row">
-      <textarea id="answerInput" class="answer-input" rows="1" placeholder="输入你的回答..."></textarea>
+      <textarea id="answerInput" class="answer-input" rows="1" data-i18n-placeholder="inputPlaceholder" placeholder="输入你的回答..."></textarea>
       <button class="send-btn" id="sendBtn" disabled aria-label="发送">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 2L11 13"/>
@@ -39,41 +39,42 @@
 
   <div class="report-overlay" id="reportOverlay">
     <div class="report-card">
-      <h2>练习完成</h2>
-      <p class="report-sub">你已完成 6 轮对话式练习</p>
+      <h2 data-i18n="practiceDone">练习完成</h2>
+      <p class="report-sub" data-i18n="practiceDoneSub">你已完成 6 轮对话式练习</p>
 
       <div class="report-section">
-        <h3>总评</h3>
+        <h3 data-i18n="overallComment">总评</h3>
         <p id="reportComment"></p>
       </div>
 
       <div class="report-section">
-        <h3>亮点</h3>
+        <h3 data-i18n="highlights">亮点</h3>
         <ul id="reportHighlights"></ul>
       </div>
 
       <div class="report-section">
-        <h3>改进建议</h3>
+        <h3 data-i18n="suggestions">改进建议</h3>
         <ul id="reportSuggestions"></ul>
       </div>
 
       <div class="report-section">
-        <h3>分数表</h3>
+        <h3 data-i18n="scoreTable">分数表</h3>
         <div id="reportScoreTable" class="score-table"></div>
       </div>
 
       <div class="report-section">
-        <h3>能力雷达图</h3>
+        <h3 data-i18n="radarChart">能力雷达图</h3>
         <div id="reportRadar" class="radar-box"></div>
       </div>
 
       <div class="report-actions">
-        <button class="report-btn primary" id="backToModesBtn">返回模式选择</button>
-        <button class="report-btn" id="retryBtn">再来一次</button>
+        <button class="report-btn primary" id="backToModesBtn" data-i18n="backToModes">返回模式选择</button>
+        <button class="report-btn" id="retryBtn" data-i18n="tryAgain">再来一次</button>
       </div>
     </div>
   </div>
 
+  <script src="/static/i18n.js"></script>
   <script src="/static/dialog.js"></script>
 </body>
 </html>

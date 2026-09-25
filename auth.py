@@ -21,16 +21,13 @@ def save_users(users_dict):
     save_json(USERS_FILE, list(users_dict.values()))
 
 
-# 启动时加载一次（当前内存里的用户）
-USERS = load_users()
-
-
 # ---------- 路由 ----------
 
 def register_auth_routes(app):
 
     @app.route("/api/login", methods=["POST"])
     def login():
+        users = load_users()
         data = request.get_json()
         username = data.get("username", "")
         phone = data.get("phone", "")
@@ -39,7 +36,7 @@ def register_auth_routes(app):
 
         # 手机号登录
         if phone:
-            for uname, uinfo in USERS.items():
+            for uname, uinfo in users.items():
                 if (uinfo.get("phone") == phone
                         and uinfo.get("password") == password
                         and uinfo.get("role") == role):
@@ -50,7 +47,7 @@ def register_auth_routes(app):
             return jsonify({"success": False, "message": "手机号、密码或身份错误"})
 
         # 账号登录
-        user = USERS.get(username)
+        user = users.get(username)
         if user and user.get("password") == password and user.get("role") == role:
             session["username"] = username
             session["role"] = role
@@ -60,6 +57,7 @@ def register_auth_routes(app):
 
     @app.route("/api/register", methods=["POST"])
     def register():
+        users = load_users()
         data = request.get_json()
         username = data.get("username", "").strip()
         phone = data.get("phone", "").strip()
@@ -68,28 +66,29 @@ def register_auth_routes(app):
 
         if not username or not phone or not password:
             return jsonify({"success": False, "message": "请填写完整信息"})
-        if username in USERS:
+        if username in users:
             return jsonify({"success": False, "message": "该账号已存在"})
-        for u in USERS.values():
+        for u in users.values():
             if u.get("phone") == phone:
                 return jsonify({"success": False, "message": "该手机号已注册"})
 
-        USERS[username] = {
+        users[username] = {
             "username": username,
             "password": password,
             "role": role,
             "phone": phone,
         }
-        save_users(USERS)
+        save_users(users)
 
         return jsonify({"success": True, "message": "注册成功"})
 
     @app.route("/api/forgot_password", methods=["POST"])
     def forgot_password():
+        users = load_users()
         data = request.get_json()
         username = data.get("username", "").strip()
-        if username in USERS:
-            USERS[username]["reset_requested"] = True
-            save_users(USERS)
+        if username in users:
+            users[username]["reset_requested"] = True
+            save_users(users)
             return jsonify({"success": True, "message": "已记录，请联系管理员重置密码"})
         return jsonify({"success": False, "message": "该账号不存在"})

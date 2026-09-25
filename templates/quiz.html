@@ -10,8 +10,8 @@
 <body class="app-body">
 
   <header class="app-header">
-    <h1 class="app-title">答题</h1>
-    <p class="app-greeting" id="greeting">选择一种练习模式开始</p>
+    <h1 class="app-title" data-i18n="quizTitle">答题</h1>
+    <p class="app-greeting" id="greeting" data-i18n="quizGreeting">选择一种练习模式开始</p>
   </header>
 
   <main class="app-main">
@@ -24,32 +24,32 @@
 
     <section id="quizArea" style="display:none;">
       <div class="quiz-progress">
-        <span id="progressText">第 1 / 10 题</span>
+        <span id="progressText" data-i18n="progress">第 1 / 10 题</span>
         <div class="progress-bar">
           <div class="progress-fill" id="progressFill" style="width: 10%;"></div>
         </div>
       </div>
 
       <div class="quiz-card">
-        <p class="dimension-label" id="dimensionLabel">维度：—</p>
-        <h2 class="question-text" id="questionText">题目加载中...</h2>
+        <p class="dimension-label" id="dimensionLabel">—</p>
+        <h2 class="question-text" id="questionText" data-i18n="loading">题目加载中...</h2>
         <div class="options" id="optionsBox"></div>
       </div>
 
-      <button class="next-btn" id="nextBtn" disabled>下一题</button>
+      <button class="next-btn" id="nextBtn" disabled data-i18n="nextQ">下一题</button>
     </section>
 
     <section id="resultArea" style="display:none;">
       <div class="result-card">
-        <h2>本次答题完成</h2>
+        <h2 data-i18n="quizDone">本次答题完成</h2>
         <div class="result-score">
           <span class="score-num" id="scoreNum">0</span>
-          <span class="score-unit">分</span>
+          <span class="score-unit" data-i18n="score">分</span>
         </div>
         <p class="result-detail" id="resultDetail">共 0 题，答对 0 题</p>
         <div class="result-actions">
-          <button class="result-btn primary" id="toWrongBtn">查看错题</button>
-          <button class="result-btn" id="restartBtn">再来一次</button>
+          <button class="result-btn primary" id="toWrongBtn" data-i18n="viewWrong">查看错题</button>
+          <button class="result-btn" id="restartBtn" data-i18n="tryAgain">再来一次</button>
         </div>
       </div>
     </section>
@@ -61,24 +61,25 @@
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 6h16M4 12h16M4 18h10"/>
       </svg>
-      <span>答题</span>
+      <span data-i18n="tabQuiz">答题</span>
     </a>
     <a href="/wrong" class="tabbar-item">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 8v5M12 16h.01"/>
         <circle cx="12" cy="12" r="9"/>
       </svg>
-      <span>错题</span>
+      <span data-i18n="tabWrong">错题</span>
     </a>
     <a href="/me" class="tabbar-item">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="8" r="4"/>
         <path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
       </svg>
-      <span>我的</span>
+      <span data-i18n="tabMe">我的</span>
     </a>
   </nav>
 
+  <script src="/static/i18n.js"></script>
   <script src="/static/quiz.js"></script>
 </body>
 </html>

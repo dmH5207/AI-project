@@ -26,9 +26,11 @@
   var forgotMessage = document.getElementById("forgotMessage");
 
   // ========= 手机号校验函数 + 实时输入监听 =========
+  function t(key) { return window.t(key); }
+
   function getPhoneError(phone) {
-    if (!phone) return "请输入手机号";
-    if (!/^1\d{10}$/.test(phone)) return "手机号格式错误";
+    if (!phone) return t("phonePh");
+    if (!/^1\d{10}$/.test(phone)) return window.currentLang === "en" ? "Invalid phone format" : "手机号格式错误";
     return "";
   }
   window.getPhoneError = getPhoneError;
@@ -104,16 +106,16 @@
     var password = passwordInput.value;
 
     if (!/^1\d{10}$/.test(phone)) {
-      showMsg(loginMessage, "请输入正确的11位手机号", "error");
+      showMsg(loginMessage, t("invalidPhone"), "error");
       return;
     }
     if (!password) {
-      showMsg(loginMessage, "请输入密码", "error");
+      showMsg(loginMessage, t("enterPassword"), "error");
       return;
     }
 
     loginBtn.disabled = true;
-    loginBtn.textContent = "登录中...";
+    loginBtn.textContent = t("loggingIn");
 
     fetch("/api/login", {
       method: "POST",
@@ -123,20 +125,20 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.success) {
-          showMsg(loginMessage, "登录成功，正在跳转...", "success");
+          showMsg(loginMessage, t("loginSuccess"), "success");
           setTimeout(function () {
             window.location.href = data.redirect || "/quiz";
           }, 800);
         } else {
-          showMsg(loginMessage, data.message || "手机号或密码错误", "error");
+          showMsg(loginMessage, data.message || t("loginFail"), "error");
           loginBtn.disabled = false;
-          loginBtn.textContent = "登 录";
+          loginBtn.textContent = t("loginBtn");
         }
       })
       .catch(function () {
-        showMsg(loginMessage, "网络错误，请稍后重试", "error");
+        showMsg(loginMessage, t("netErr"), "error");
         loginBtn.disabled = false;
-        loginBtn.textContent = "登 录";
+        loginBtn.textContent = t("loginBtn");
       });
   });
 
@@ -150,13 +152,13 @@
     var confirm = regConfirm.value;
     var role = regRole.value;
 
-    if (!username) { showMsg(registerMessage, "请设置账号", "error"); return; }
-    if (!/^1\d{10}$/.test(phone)) { showMsg(registerMessage, "请输入正确的11位手机号", "error"); return; }
-    if (password.length < 6) { showMsg(registerMessage, "密码至少6位", "error"); return; }
-    if (password !== confirm) { showMsg(registerMessage, "两次密码不一致", "error"); return; }
+    if (!username) { showMsg(registerMessage, t("setAccount"), "error"); return; }
+    if (!/^1\d{10}$/.test(phone)) { showMsg(registerMessage, getPhoneError(phone) || t("phoneHint"), "error"); return; }
+    if (password.length < 6) { showMsg(registerMessage, t("errPwdLen"), "error"); return; }
+    if (password !== confirm) { showMsg(registerMessage, t("errPwdMatch"), "error"); return; }
 
     registerBtn.disabled = true;
-    registerBtn.textContent = "注册中...";
+    registerBtn.textContent = t("registering");
 
     fetch("/api/register", {
       method: "POST",
@@ -166,21 +168,21 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.success) {
-          showMsg(registerMessage, "注册成功，请登录", "success");
+          showMsg(registerMessage, t("regSuccess"), "success");
           setTimeout(function () {
             registerSection.style.display = "none";
             loginSection.style.display = "";
           }, 1000);
         } else {
-          showMsg(registerMessage, data.message || "注册失败", "error");
+          showMsg(registerMessage, data.message || t("regFail"), "error");
         }
         registerBtn.disabled = false;
-        registerBtn.textContent = "注 册";
+        registerBtn.textContent = t("registerBtn");
       })
       .catch(function () {
-        showMsg(registerMessage, "网络错误，请稍后重试", "error");
+        showMsg(registerMessage, t("netErr"), "error");
         registerBtn.disabled = false;
-        registerBtn.textContent = "注 册";
+        registerBtn.textContent = t("registerBtn");
       });
   });
 
@@ -205,12 +207,12 @@
   forgotConfirm.addEventListener("click", function () {
     var username = forgotUsername.value.trim();
     if (!username) {
-      forgotMessage.textContent = "请输入账号";
+      forgotMessage.textContent = t("setAccount");
       forgotMessage.className = "forgot-message error";
       return;
     }
     forgotConfirm.disabled = true;
-    forgotConfirm.textContent = "提交中...";
+    forgotConfirm.textContent = t("submitting");
     fetch("/api/forgot_password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -219,20 +221,20 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.success) {
-          forgotMessage.textContent = "已提交，请联系管理员重置密码";
+          forgotMessage.textContent = window.currentLang === "en" ? "Submitted, contact admin to reset" : "已提交，请联系管理员重置密码";
           forgotMessage.className = "forgot-message success";
         } else {
-          forgotMessage.textContent = data.message || "提交失败，请重试";
+          forgotMessage.textContent = data.message || (window.currentLang === "en" ? "Submit failed" : "提交失败，请重试");
           forgotMessage.className = "forgot-message error";
         }
         forgotConfirm.disabled = false;
-        forgotConfirm.textContent = "提交";
+        forgotConfirm.textContent = t("submitBtn");
       })
       .catch(function () {
-        forgotMessage.textContent = "网络错误，请稍后重试";
+        forgotMessage.textContent = t("netErr");
         forgotMessage.className = "forgot-message error";
         forgotConfirm.disabled = false;
-        forgotConfirm.textContent = "提交";
+        forgotConfirm.textContent = t("submitBtn");
       });
   });
 })();

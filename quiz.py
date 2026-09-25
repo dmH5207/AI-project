@@ -16,9 +16,9 @@ DIALOG_FILE = os.path.join(os.path.dirname(__file__), "dialog_records.json")
 
 
 MODES = [
-    {"key": "dialog",    "name": "对话式练习", "desc": "与 AI 对话，锻炼表达与理解"},
-    {"key": "practice",  "name": "实操式练习", "desc": "动手操作，模拟真实任务"},
-    {"key": "objective", "name": "客观题练习", "desc": "选择题，快速检测掌握程度"},
+    {"key": "dialog",    "nameKey": "modeDialog",    "descKey": "modeDialogDesc"},
+    {"key": "practice",  "nameKey": "modePractice",  "descKey": "modePracticeDesc"},
+    {"key": "objective", "nameKey": "modeObjective", "descKey": "modeObjectiveDesc"},
 ]
 
 
@@ -27,13 +27,13 @@ MODES = [
 def _make_greeting(username):
     hour = datetime.now().hour
     if 5 <= hour < 11:
-        time_word = "早上好"
+        time_key = "morningGreeting"
     elif 11 <= hour < 13:
-        time_word = "中午好"
+        time_key = "noonGreeting"
     elif 13 <= hour < 18:
-        time_word = "下午好"
+        time_key = "afternoonGreeting"
     else:
-        time_word = "晚上好"
+        time_key = "eveningGreeting"
 
     display = username
     try:
@@ -45,7 +45,7 @@ def _make_greeting(username):
     except Exception:
         pass
 
-    return time_word + "，" + display + "！\n选一种模式开始吧"
+    return {"timeKey": time_key, "display": display}
 
 
 # ---------- 数据读写 ----------
@@ -107,7 +107,7 @@ def register_quiz_routes(app):
 
         if not username:
             stats = {m["key"]: {"count": 0, "last": None} for m in MODES}
-            greeting = "请先登录"
+            greeting = {"timeKey": "", "display": "", "notLoggedIn": True}
         else:
             stats = _user_stats(username)
             greeting = _make_greeting(username)
@@ -117,8 +117,8 @@ def register_quiz_routes(app):
             s = stats[m["key"]]
             result.append({
                 "key": m["key"],
-                "name": m["name"],
-                "desc": m["desc"],
+                "nameKey": m["nameKey"],
+                "descKey": m["descKey"],
                 "count": s["count"],
                 "last": s["last"],
             })
@@ -203,10 +203,14 @@ def register_quiz_routes(app):
             username = session.get("username") or "anonymous"
             wrong = _get_wrong()
             wrong.setdefault(username, []).append({
-                "question_id": qid,
-                "wrong_answer": user_answer,
+                "id": qid,
+                "question": q.get("question", q.get("text", "")),
+                "options": q.get("options", []),
+                "user_answer": user_answer,
                 "correct_answer": correct_answer,
-                "dimension": q.get("dimension", "—"),
+                "dimension": q.get("dimension", "\u2014"),
+                "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "mastered": False,
             })
             _save_wrong(wrong)
 
