@@ -335,3 +335,106 @@ def register_dialog_routes(app):
             "total_score": report["total_score"],
             "max_score": report["max_score"],
         })
+
+    # ================================================================
+# 实操式练习接口
+# ================================================================
+
+PRACTICE_FILE = os.path.join(os.path.dirname(__file__), "practice_records.json")
+
+
+def _get_practice_records():
+    return load_json(PRACTICE_FILE, {})
+
+
+def _save_practice_records(data):
+    save_json(PRACTICE_FILE, data)
+
+
+def register_practice_routes(app):
+
+    @app.route("/api/practice/start", methods=["POST"])
+    def practice_start():
+        # 清空会话
+        session["practice_step"] = 0
+        session["practice_records"] = []
+
+        task = ai.generate_practice_task()
+        session["practice_task"] = task
+
+        return jsonify({
+            "success": True,
+            "task_title": task["task_title"],
+            "task_desc": task["task_desc"],
+        })
+
+    @app.route("/api/practice/step", methods=["POST"])
+    def practice_step():
+        data = request.get_json() or {}
+        index = int(data.get("step", 0))
+        fetch_only = data.get("fetch_only", False)
+        user_answer = (data.get("answer") or "").strip()
+
+        step = ai.get_practice_step(index)
+        if not step:
+            return jsonify({"success": False, "message": "步骤不存在"})
+
+        # 1) 只取题（页面切换到某一步时调）
+        if fetch_only:
+            return jsonify({
+                "success": True,
+                "step": index,
+                "dimension": step["dimension"],
+                "question": step["question"],
+            })
+
+        # 2) 提交回答
+        if not user_answer:
+            return jsonify({"success": False, "message": "回答不能为空"})
+
+        score, _ = ai.score_practice_step(step, user_answer)
+
+        records = session.get("practice_records", [])
+        records.append({
+            "dimension": step["dimension"],
+            "dimension_key": step["dimension_key"],
+            "answer": user_answer,
+            "score": score,
+            "weight": step["weight"],
+        })
+        session["practice_records"] = records
+        session["practice_step"] = index + 1
+
+        feedback = ai.generate_practice_feedback(step, user_answer)
+
+        finished = (index + 1 >= len(ai.PRACTICE_STEPS))
+
+        if finished:
+            username = session.get("username") or "anonymous"
+            all_records = _get_practice_records()
+            all_records.setdefault(username, []).append({
+                "task": session.get("practice_task", {}),
+                "records": records,
+            })
+            _save_practice_records(all_records)
+
+        return jsonify({
+            "success": True,
+            "step": index + 1,       # 已完成的步数
+            "finished": finished,
+            "feedback": feedback,
+        })
+
+    @app.route("/api/practice/end", methods=["POST"])
+    def practice_end():
+        records = session.get("practice_records", [])
+        report = ai.generate_practice_report(records)
+        return jsonify({
+            "success": True,
+            "comment": report["comment"],
+            "highlights": report["highlights"],
+            "suggestions": report["suggestions"],
+            "scores": report["scores"],
+            "total_score": report["total_score"],
+            "max_score": report["max_score"],
+        })

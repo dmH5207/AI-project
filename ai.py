@@ -318,6 +318,8 @@ def register_dialog_routes(app):
     @app.route("/api/dialog/end", methods=["POST"])
     def dialog_end():
         records = session.get("dialog_records", [])
+        
+        
         report = ai.generate_report(records)
         return jsonify({
             "success": True,
@@ -328,3 +330,200 @@ def register_dialog_routes(app):
             "total_score": report["total_score"],
             "max_score": report["max_score"],
         })
+    # ================================================================
+# 实操式练习（假 AI）
+# ================================================================
+
+PRACTICE_STEPS = [
+    {
+        "step": 1,
+        "dimension_key": "basic",
+        "dimension": "AI基础认知",
+        "weight": 20,
+        "question": "第 1 步：请先梳理这个任务的目标。用 3–5 句话说明：你打算解决什么问题、面向谁、希望达到什么效果。",
+        "keywords": ["目标", "对象", "效果", "问题", "任务"],
+    },
+    {
+        "step": 2,
+        "dimension_key": "tools",
+        "dimension": "AI工具使用",
+        "weight": 20,
+        "question": "第 2 步：针对这个任务，你打算用哪些 AI 工具？请列出 2–3 个，并说明它们各自能帮上什么忙。",
+        "keywords": ["工具", "通义", "ChatGPT", "Copilot", "插件", "数据分析"],
+    },
+    {
+        "step": 3,
+        "dimension_key": "prompt",
+        "dimension": "提示词工程",
+        "weight": 20,
+        "question": "第 3 步：请写出你会给 AI 的完整提示词，要求包含：角色、任务、输出格式。",
+        "keywords": ["角色", "任务", "格式", "提示词", "步骤"],
+    },
+    {
+        "step": 4,
+        "dimension_key": "evaluate",
+        "dimension": "AI结果评估与优化",
+        "weight": 20,
+        "question": "第 4 步：假设 AI 已经给了你一份初步结果。你会怎么核实它？请说出你的步骤，并指出可能出现的问题。",
+        "keywords": ["核实", "验证", "来源", "幻觉", "偏见", "改进"],
+    },
+    {
+        "step": 5,
+        "dimension_key": "collab",
+        "dimension": "人机协同解决问题",
+        "weight": 20,
+        "question": "第 5 步：写出你最终的成果（可以是简报、方案或一段说明）。同时说明：哪些是 AI 做的，哪些是你做的，为什么这样分工。",
+        "keywords": ["分工", "我负责", "AI负责", "步骤", "协同", "总结"],
+    },
+]
+
+PRACTICE_TASKS = [
+    {
+        "task_title": "帮班级做一份 AI 使用情况小调查",
+        "task_desc": "你需要设计并完成一次关于班级 AI 使用情况的小调查，最后形成一份简短说明。",
+    },
+    {
+        "task_title": "用 AI 辅助完成一次文献速览",
+        "task_desc": "围绕一个你感兴趣的主题，借助 AI 快速浏览 2–3 篇资料，并整理成一段要点。",
+    },
+    {
+        "task_title": "设计一份 AI 辅助的学习计划",
+        "task_desc": "为一门你正在学的课，借助 AI 制定一份 2 周的学习计划，并说明执行方式。",
+    },
+]
+
+
+def generate_practice_task():
+    return random.choice(PRACTICE_TASKS)
+
+
+def get_practice_step(index):
+    if 0 <= index < len(PRACTICE_STEPS):
+        return PRACTICE_STEPS[index]
+    return None
+
+
+def score_practice_step(step, user_answer):
+    """按步骤 rubric 评分（0 ~ weight），复用 score_answer 的思路"""
+    text = (user_answer or "").strip()
+    weight = step["weight"]
+
+    if not text:
+        return 0, "没有作答。"
+
+    score = 0.0
+    reasons = []
+
+    example_words = ["比如", "例如", "举个例子", "举例", "譬如"]
+    if any(w in text for w in example_words):
+        score += weight * 0.3
+        reasons.append("有具体例子")
+
+    reason_words = ["因为", "所以", "理由", "因此", "由于"]
+    if any(w in text for w in reason_words):
+        score += weight * 0.25
+        reasons.append("有理由推导")
+
+    hit = [k for k in step.get("keywords", []) if k in text]
+    if hit:
+        score += weight * 0.35
+        reasons.append("涉及关键词：" + "、".join(hit[:3]))
+
+    if len(text) >= 100:
+        score += weight * 0.1
+    elif len(text) < 25:
+        score -= weight * 0.15
+
+    score = max(0, min(weight, round(score)))
+
+    if score >= weight * 0.8:
+        comment = "这一步完成得很好，内容具体、有支撑。"
+    elif score >= weight * 0.5:
+        comment = "基本达到要求，可以再补充一些细节。"
+    else:
+        comment = "这一步还需要展开，建议补充具体做法或例子。"
+
+    if reasons:
+        comment += "（" + "、".join(reasons) + "）"
+
+    return score, comment
+
+
+def generate_practice_feedback(step, user_answer):
+    score, comment = score_practice_step(step, user_answer)
+
+    tips = [
+        "如果换一个场景，你的做法会变吗？",
+        "这一步里，你觉得最容易出问题的地方在哪？",
+        "如果只能保留一句话，你会留下哪一句？",
+        "有没有更好的方式来表达你的想法？""有没有更简单的方式达到同样的效果？",
+    ]
+
+    return (
+        "【" + step["dimension"] + " · 反馈】\n"
+        + comment + "\n\n"
+        + "【想一想】\n" + random.choice(tips)
+    )
+
+
+def generate_practice_report(records):
+    if not records:
+        return {
+            "comment": "本次练习没有记录。",
+            "highlights": [],
+            "suggestions": ["下次记得每步都写一点内容。"],
+            "scores": [],
+            "total_score": 0,
+            "max_score": 100,
+        }
+
+    total_score = sum(r.get("score", 0) for r in records)
+    max_score = sum(r.get("weight", 0) for r in records)
+    ratio = total_score / max_score if max_score else 0
+
+    if ratio >= 0.8:
+        comment = "本次实操练习表现优秀。你在各步骤都能给出具体做法，有目标、有工具、有验证意识，整体完成度很高。"
+    elif ratio >= 0.6:
+        comment = "本次实操练习表现良好。多数步骤都能按要求完成，个别步骤可以再细化。"
+    elif ratio >= 0.4:
+        comment = "本次实操练习完成度一般。建议在每一步都补充具体操作细节，让方案更落地。"
+    else:
+        comment = "本次实操练习完成度偏低。建议先从明确任务目标开始，再逐步补齐工具、提示词和验证方法。"
+
+    sorted_records = sorted(
+        records,
+        key=lambda r: r.get("score", 0) / (r.get("weight", 1) or 1),
+        reverse=True,
+    )
+
+    highlights = []
+    for r in sorted_records[:2]:
+        highlights.append(
+            "「" + r["dimension"] + "」表现较好，得分 "
+            + str(r.get("score", 0)) + " / " + str(r.get("weight", 0))
+        )
+    highlights.append("完整走完了 5 步实操流程")
+
+    suggestions = []
+    for r in sorted_records[-2:]:
+        suggestions.append(
+            "「" + r["dimension"] + "」还可加强，建议补充具体操作细节"
+        )
+    suggestions.append("执行复杂任务时，先写目标，再配工具，最后想验证方法")
+
+    scores = []
+    for r in records:
+        scores.append({
+            "dimension": r["dimension"],
+            "score": r.get("score", 0),
+            "weight": r.get("weight", 0),
+        })
+
+    return {
+        "comment": comment,
+        "highlights": highlights,
+        "suggestions": suggestions,
+        "scores": scores,
+        "total_score": total_score,
+        "max_score": max_score,
+    }

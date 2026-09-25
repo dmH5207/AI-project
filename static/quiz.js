@@ -83,6 +83,10 @@
               window.location.href = "/dialog";
               return;
             }
+            if (m.key === "practice") {
+              window.location.href = "/practice";
+              return;
+            }
             currentMode = m.key;
             modeArea.style.display = "none";
             quizArea.style.display = "";

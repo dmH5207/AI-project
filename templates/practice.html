@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AI智能测评系统 - 实操式练习</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/pages/practice.css">
+</head>
+<body class="practice-body">
+
+  <!-- 顶部栏 -->
+  <header class="practice-header">
+    <a href="/quiz" class="back-btn" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </a>
+    <div class="header-center">
+      <h1 class="practice-title">实操式练习</h1>
+      <p class="practice-progress" id="progressText">第 1 / 5 步</p>
+    </div>
+    <div class="header-right"></div>
+  </header>
+
+  <main class="practice-main">
+
+    <!-- 任务区 -->
+    <section id="taskArea" class="task-area">
+      <div class="task-card">
+        <p class="task-label">本次任务</p>
+        <h2 class="task-title" id="taskTitle">加载中...</h2>
+        <p class="task-desc" id="taskDesc"></p>
+      </div>
+
+      <div class="steps-overview">
+        <div class="step-dot" data-step="1">1</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="2">2</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="3">3</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="4">4</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="5">5</div>
+      </div>
+
+      <div class="step-card">
+        <p class="step-dimension" id="stepDimension">维度：AI基础认知</p>
+        <h3 class="step-question" id="stepQuestion">加载中...</h3>
+
+        <textarea
+          id="answerInput"
+          class="answer-input"
+          rows="5"
+          placeholder="在此写下你的回答..."
+        ></textarea>
+
+        <button class="submit-btn" id="submitBtn" disabled>提交这一步</button>
+      </div>
+
+      <!-- 反馈区（提交后出现） -->
+      <div class="feedback-card" id="feedbackCard" style="display:none;">
+        <p class="feedback-label">AI 反馈</p>
+        <div class="feedback-text" id="feedbackText"></div>
+        <button class="next-step-btn" id="nextStepBtn">进入下一步</button>
+      </div>
+    </section>
+
+    <!-- 报告区（全部完成后出现） -->
+    <section id="reportArea" style="display:none;">
+      <div class="report-card">
+        <h2>实操任务完成</h2>
+        <p class="report-sub">你已完成 5 步实操练习</p>
+
+        <div class="report-section">
+          <h3>总评</h3>
+          <p id="reportComment"></p>
+        </div>
+
+        <div class="report-section">
+          <h3>亮点</h3>
+          <ul id="reportHighlights"></ul>
+        </div>
+
+        <div class="report-section">
+          <h3>改进建议</h3>
+          <ul id="reportSuggestions"></ul>
+        </div>
+
+        <div class="report-section">
+          <h3>分数表</h3>
+          <div id="reportScoreTable" class="score-table"></div>
+        </div>
+
+        <div class="report-section">
+          <h3>能力雷达图</h3>
+          <div id="reportRadar" class="radar-box"></div>
+        </div>
+
+        <div class="report-actions">
+          <button class="report-btn primary" id="backToModesBtn">返回模式选择</button>
+          <button class="report-btn" id="retryBtn">再来一次</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/practice.js"></script>
+</body>
+</html>
