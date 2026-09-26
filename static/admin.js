@@ -51,6 +51,7 @@
   };
 
   var statsLoaded = false;
+  var wrongListLoaded = false;
   var chartReady = false;
 
   function init() {
@@ -114,10 +115,13 @@
         document.querySelectorAll(".tab-content").forEach(function (s) {
           s.classList.remove("active");
         });
-        var isCharts = btn.getAttribute("data-tab") === "charts";
-        var id = isCharts ? "tabCharts" : "tabUsers";
+        var tab = btn.getAttribute("data-tab");
+        var id = tab === "charts" ? "tabCharts" : tab === "wrong" ? "tabWrong" : "tabUsers";
         document.getElementById(id).classList.add("active");
-        if (isCharts && !statsLoaded) {
+        if (tab === "wrong" && !wrongListLoaded) {
+          loadWrongList();
+        }
+        if (tab === "charts" && !statsLoaded) {
           if (chartReady) {
             loadStats();
           } else {
@@ -129,6 +133,74 @@
         }
       });
     });
+  }
+
+  function loadWrongList() {
+    fetch("/api/admin/wrong_list")
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res.success) {
+          document.getElementById("wrongListContainer").innerHTML =
+            '<div class="card" style="text-align:center;color:#e74c3c;padding:30px">' + esc(res.message || t("adminStatsFail")) + '</div>';
+          return;
+        }
+        renderWrongList(res.data);
+        wrongListLoaded = true;
+      })
+      .catch(function (e) {
+        document.getElementById("wrongListContainer").innerHTML =
+          '<div class="card" style="text-align:center;color:#e74c3c;padding:30px">' + esc(e.message || "Error") + '</div>';
+      });
+  }
+
+  function renderWrongList(dimGroups) {
+    var container = document.getElementById("wrongListContainer");
+    if (!dimGroups || !dimGroups.length) {
+      container.innerHTML = '<div class="card" style="text-align:center;color:#7a9bb8;padding:30px">' + (t("adminNoWrong") || "暂无错题数据") + '</div>';
+      return;
+    }
+    var isEn = t("adminDialog") === "Dialog";
+    var html = '';
+    dimGroups.forEach(function (group) {
+      var dimTitle = isEn ? group.dimension_en : group.dimension;
+      html += '<div class="card">';
+      html += '<h3 class="card-title" style="display:flex;align-items:center;gap:8px">';
+      html += '<span class="dim-dot" style="width:8px;height:8px;border-radius:50%;background:' + COLORS.palette[dimGroups.indexOf(group) % COLORS.palette.length] + ';display:inline-block"></span>';
+      html += esc(dimTitle) + ' <span style="font-size:12px;color:#7a9bb8;font-weight:400">(' + group.items.length + ')</span>';
+      html += '</h3>';
+      html += '<div class="table-wrap"><table class="user-table"><thead><tr>';
+      html += '<th>' + (isEn ? "Question" : "题目") + '</th>';
+      html += '<th>' + (isEn ? "Student" : "学生") + '</th>';
+      html += '<th>' + (isEn ? "Student Ans" : "学生答案") + '</th>';
+      html += '<th>' + (isEn ? "Correct Ans" : "正确答案") + '</th>';
+      html += '<th>' + (isEn ? "Time" : "时间") + '</th>';
+      html += '<th>' + (isEn ? "Status" : "状态") + '</th>';
+      html += '</tr></thead><tbody>';
+      group.items.forEach(function (item) {
+        var q = isEn ? item.question_en : item.question;
+        if (!q) q = item.question;
+        var statusBadge = item.mastered
+          ? '<span class="badge badge-ok">' + (isEn ? "Mastered" : "已掌握") + '</span>'
+          : '<span class="badge badge-reset">' + (isEn ? "Unmastered" : "未掌握") + '</span>';
+        html += '<tr>';
+        html += '<td style="max-width:260px;white-space:normal;line-height:1.4">' + esc(q) + '</td>';
+        html += '<td><strong>' + esc(item.username) + '</strong></td>';
+        html += '<td>' + esc(item.user_answer) + '</td>';
+        var _ca = item.correct_answer || '';
+        var _phKws = ['对话题', '实操题', '参考AI', '参考答案', '开放题'];
+        var _isPh = _phKws.some(function(kw){ return _ca.indexOf(kw) >= 0; });
+        if (_isPh) {
+          html += '<td style="color:#7a9bb8;font-style:italic">' + (isEn ? 'AI generating...' : 'AI生成中...') + '</td>';
+        } else {
+          html += '<td>' + esc(_ca) + '</td>';
+        }
+        html += '<td>' + esc(item.time) + '</td>';
+        html += '<td>' + statusBadge + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div></div>';
+    });
+    container.innerHTML = html;
   }
 
   function loadUsers() {
@@ -352,7 +424,7 @@
     };
   }
 
-  function t(key) { return (window.t) ? window.t(key) : key; }
+
 
   function esc(s) {
     var d = document.createElement("div");

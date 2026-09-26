@@ -75,6 +75,7 @@
       var dimension = (isEn && item.dimension_en) ? item.dimension_en : (item.dimension || "综合");
       var time = item.time || "";
       var options = (isEn && item.options_en) ? item.options_en : (item.options || []);
+      var isOpenQuestion = correctAnswer.indexOf('开放题') >= 0 || correctAnswer.indexOf('参考AI') >= 0 || correctAnswer.indexOf('参考答案') >= 0 || correctAnswer.indexOf('对话题') >= 0 || correctAnswer.indexOf('实操题') >= 0;
 
       html += '<div class="wrong-card" data-id="' + qid + '">';
 
@@ -102,16 +103,25 @@
         html += '</div>';
       }
 
+      var _phKws = ['对话题', '实操题', '参考AI', '参考答案', '开放题'];
+      var _isPlaceholder = _phKws.some(function(kw){ return correctAnswer.indexOf(kw) >= 0; });
       html += '<div class="answer-row">' +
           '<div class="answer-item wrong">' +
             '<span class="answer-tag error">' + t("myAnswer") + '</span>' +
             '<span class="answer-text">' + userAnswer + '</span>' +
-          '</div>' +
-          '<div class="answer-item correct">' +
+          '</div>';
+      if (_isPlaceholder) {
+        html += '<div class="answer-item" style="opacity:0.7">' +
+            '<span class="answer-tag" style="background:#7a9bb8;color:#fff">' + (isEn ? 'Open Q' : '开放题') + '</span>' +
+            '<span class="answer-text" style="color:#7a9bb8">' + (isEn ? 'Click analysis to generate' : '点击解析生成参考答案') + '</span>' +
+          '</div>';
+      } else {
+        html += '<div class="answer-item correct">' +
             '<span class="answer-tag right">' + t("correctAnswer") + '</span>' +
             '<span class="answer-text">' + correctAnswer + '</span>' +
-          '</div>' +
-        '</div>' +
+          '</div>';
+      }
+      html += '</div>' +
       '</div>';
 
       html += '<div class="expand-section">' +
@@ -182,6 +192,23 @@ function loadAnalysis(qid, container) {
     })
     .then(function (data) {
       if (!data.success) throw new Error(data.message || "分析失败");
+
+      if (data.correct_answer) {
+        var card = container.closest('.wrong-card');
+        if (card) {
+          var correctEl = card.querySelector('.answer-item.correct .answer-text, .answer-item[style*="opacity"] .answer-text');
+          if (correctEl) {
+            correctEl.textContent = data.correct_answer;
+            var parentItem = correctEl.closest('.answer-item');
+            if (parentItem) {
+              parentItem.classList.add('correct');
+              parentItem.style.opacity = '';
+              var tag = parentItem.querySelector('.answer-tag');
+              if (tag) { tag.className = 'answer-tag right'; tag.textContent = t('correctAnswer'); }
+            }
+          }
+        }
+      }
 
       var html = "";
 
