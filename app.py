@@ -48,6 +48,11 @@ def me():
     return render_template("me.html")
 
 
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+
 # 启动时迁移明文密码为哈希
 migrate_passwords()
 

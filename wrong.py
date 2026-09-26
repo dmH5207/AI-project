@@ -204,7 +204,7 @@ def register_wrong_routes(app):
             "unmastered": len(items) - mastered
         })
 
-    @app.route("/api/wrong/remove/<int:qid>", methods=["POST"])
+    @app.route("/api/wrong/remove/<path:qid>", methods=["POST"])
     def wrong_remove(qid):
         data = _read_wrong_dict()
         if isinstance(data, dict) and "wrong_answers" not in data:
@@ -219,7 +219,7 @@ def register_wrong_routes(app):
             _write_wrong(items)
         return jsonify({"success": True})
 
-    @app.route("/api/wrong/master/<int:qid>", methods=["POST"])
+    @app.route("/api/wrong/master/<path:qid>", methods=["POST"])
     def wrong_master(qid):
         body = request.get_json(silent=True) or {}
         flag = body.get("mastered", True)
@@ -241,7 +241,7 @@ def register_wrong_routes(app):
             _write_wrong(items)
         return jsonify({"success": True, "mastered": flag})
 
-    @app.route("/api/wrong/analyze/<int:qid>", methods=["POST"])
+    @app.route("/api/wrong/analyze/<path:qid>", methods=["POST"])
     def wrong_analyze(qid):
         data = request.get_json(silent=True) or {}
         lang = data.get("lang", "zh")

@@ -226,7 +226,7 @@ def register_quiz_routes(app):
         if not correct:
             username = session.get("username") or "anonymous"
             wrong = _get_wrong()
-            wrong.setdefault(username, []).append({
+            wrong_entry = {
                 "id": qid,
                 "question": q.get("question", q.get("text", "")),
                 "options": q.get("options", []),
@@ -235,7 +235,14 @@ def register_quiz_routes(app):
                 "dimension": q.get("dimension", "\u2014"),
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 "mastered": False,
-            })
+            }
+            if q.get("question_en"):
+                wrong_entry["question_en"] = q["question_en"]
+            if q.get("options_en"):
+                wrong_entry["options_en"] = q["options_en"]
+            if q.get("dimension_en"):
+                wrong_entry["dimension_en"] = q["dimension_en"]
+            wrong.setdefault(username, []).append(wrong_entry)
             _save_wrong(wrong)
 
         result = {
@@ -328,7 +335,7 @@ def register_dialog_routes(app):
         if score < d["weight"] * 0.6:
             username = session.get("username") or "anonymous"
             wrong = _get_wrong()
-            wrong.setdefault(username, []).append({
+            wrong_entry_2 = {
                 "id": f"dialog_{index}_{d['key']}",
                 "question": ai.generate_question(d["key"]),
                 "options": [],
@@ -337,7 +344,13 @@ def register_dialog_routes(app):
                 "dimension": d["name"],
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 "mastered": False,
-            })
+            }
+            if d.get("name_en"):
+                wrong_entry_2["dimension_en"] = d["name_en"]
+            question_en_text = ai.generate_question(d["key"], lang="en")
+            if question_en_text:
+                wrong_entry_2["question_en"] = question_en_text
+            wrong.setdefault(username, []).append(wrong_entry_2)
             _save_wrong(wrong)
 
         reply = ai.generate_reply(d["key"], user_answer, lang=lang)
@@ -479,7 +492,7 @@ def register_practice_routes(app):
         if score < step["weight"] * 0.6:
             username = session.get("username") or "anonymous"
             wrong = _get_wrong()
-            wrong.setdefault(username, []).append({
+            wrong_entry_3 = {
                 "id": f"practice_{index}_{step['dimension_key']}",
                 "question": step["question"],
                 "options": [],
@@ -488,7 +501,12 @@ def register_practice_routes(app):
                 "dimension": step["dimension"],
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 "mastered": False,
-            })
+            }
+            if step.get("dimension_en"):
+                wrong_entry_3["dimension_en"] = step["dimension_en"]
+            if step.get("question_en"):
+                wrong_entry_3["question_en"] = step["question_en"]
+            wrong.setdefault(username, []).append(wrong_entry_3)
             _save_wrong(wrong)
 
         feedback = ai.generate_practice_feedback(step, user_answer, lang=lang)

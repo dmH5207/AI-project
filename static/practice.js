@@ -155,11 +155,60 @@
         }
         taskTitle.textContent = (window.currentLang === "en" && data.task_title_en) ? data.task_title_en : data.task_title;
         taskDesc.textContent = (window.currentLang === "en" && data.task_desc_en) ? data.task_desc_en : data.task_desc;
+        try { sessionStorage.setItem("practiceTask", JSON.stringify(data)); } catch (e) {}
         loadStep(0);
       })
       .catch(function () {
         alert(window.currentLang === "en" ? "Network error, please refresh" : "网络错误，请刷新重试");
       });
+  }
+
+  function refreshStepText(index) {
+    fetch("/api/practice/step", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ step: index, fetch_only: true, lang: window.currentLang || "zh" })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data.success) return;
+        var isEn = window.currentLang === "en";
+        stepDimension.textContent = (isEn ? "Dimension: " : "维度：") + ((isEn && data.dimension_en) ? data.dimension_en : data.dimension);
+        stepQuestion.textContent = (isEn && data.question_en) ? data.question_en : data.question;
+        progressText.textContent = (isEn ? "Step " : "第 ") + (index + 1) + " / " + totalSteps + (isEn ? "" : " 步");
+      });
+  }
+
+  if (window.addEventListener) {
+    window.addEventListener("langChanged", function () {
+      if (taskArea.style.display !== "none") {
+        var task = null;
+        try { task = JSON.parse(sessionStorage.getItem("practiceTask") || "null"); } catch (e) {}
+        if (task) {
+          var isEn0 = window.currentLang === "en";
+          taskTitle.textContent = (isEn0 && task.task_title_en) ? task.task_title_en : task.task_title;
+          taskDesc.textContent = (isEn0 && task.task_desc_en) ? task.task_desc_en : task.task_desc;
+        }
+        var isEn2 = window.currentLang === "en";
+        if (answerInput.disabled && currentStep > 0 && currentStep <= totalSteps) {
+          refreshStepText(currentStep - 1);
+          submitBtn.textContent = isEn2 ? "Submit" : "提交这一步";
+          if (currentStep >= totalSteps) {
+            nextStepBtn.textContent = isEn2 ? "View Report" : "查看报告";
+          } else {
+            nextStepBtn.textContent = isEn2 ? "Next Step" : "进入下一步";
+          }
+        } else if (currentStep < totalSteps) {
+          loadStep(currentStep);
+        } else {
+          progressText.textContent = isEn2 ? "All steps completed" : "所有步骤已完成";
+          nextStepBtn.textContent = isEn2 ? "View Report" : "查看报告";
+        }
+      }
+      if (reportArea.style.display !== "none") {
+        showReport();
+      }
+    });
   }
 
   // ---------- 报告 ----------
@@ -308,6 +357,21 @@
   });
 
   // ---------- 启动 ----------
+
+  if (window.applyLang) window.applyLang();
+
+  var langToggleEl = document.getElementById("langToggle");
+  if (langToggleEl && window.toggleLang) {
+    langToggleEl.addEventListener("click", function () {
+      window.toggleLang();
+    });
+  }
+  document.querySelectorAll(".lang-label").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var lang = el.getAttribute("data-lang");
+      if (lang && window.setLang) window.setLang(lang);
+    });
+  });
 
   startPractice();
 })();

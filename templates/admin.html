@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AI智能测评系统 - 管理后台</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/pages/admin.css">
+  <script src="/static/i18n.js"></script>
+</head>
+<body class="app-body">
+
+  <header class="app-header">
+    <h1 class="app-title" data-i18n="adminTitle">管理后台</h1>
+    <div class="lang-switch" id="langSwitch">
+      <span class="lang-label" data-lang="zh">中</span>
+      <div class="lang-toggle" id="langToggle">
+        <div class="lang-knob" id="langKnob"></div>
+      </div>
+      <span class="lang-label" data-lang="en">EN</span>
+    </div>
+    <p class="app-greeting" data-i18n="adminGreeting">用户管理 & 数据分析</p>
+  </header>
+
+  <main class="app-main">
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="users" data-i18n="adminTabUsers">用户管理</button>
+      <button class="tab-btn" data-tab="charts" data-i18n="adminTabCharts">数据分析</button>
+    </div>
+
+    <!-- ========== 用户管理 ========== -->
+    <section id="tabUsers" class="tab-content active">
+      <div class="summary-row" id="summaryRow"></div>
+
+      <div class="card">
+        <h3 class="card-title" data-i18n="adminStudentList">学生列表</h3>
+        <div class="table-wrap">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th data-i18n="adminAccount">账号</th>
+                <th data-i18n="adminPhone">手机号</th>
+                <th data-i18n="adminRole">身份</th>
+                <th data-i18n="adminStatus">状态</th>
+                <th data-i18n="adminAction">操作</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr><td colspan="5" class="empty-hint" data-i18n="adminLoading">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="resetModal" class="modal" style="display:none">
+        <div class="modal-box">
+          <h3 data-i18n="adminResetTitle">重置密码</h3>
+          <p class="modal-hint"><span data-i18n="adminResetHint">设置新密码</span> <strong id="resetTarget"></strong></p>
+          <input type="password" id="newPwdInput" class="modal-input" data-i18n-placeholder="adminNewPwdPh" placeholder="请输入新密码（至少6位）">
+          <div class="modal-btns">
+            <button class="btn-cancel" id="resetCancel" data-i18n="adminCancel">取消</button>
+            <button class="btn-confirm" id="resetConfirm" data-i18n="adminConfirmReset">确认重置</button>
+          </div>
+          <p class="modal-msg" id="resetMsg"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 数据分析 ========== -->
+    <section id="tabCharts" class="tab-content">
+      <div class="chart-grid">
+        <div class="card chart-card">
+          <h3 class="card-title" data-i18n="adminChartModeCount">各模式答题次数</h3>
+          <canvas id="chartModeCount"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3 class="card-title" data-i18n="adminChartLastScore">最近得分对比</h3>
+          <canvas id="chartLastScore"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h3 class="card-title" data-i18n="adminChartDimWrong">错题维度分布</h3>
+          <canvas id="chartDimWrong"></canvas>
+        </div>
+        <div class="card chart-card chart-card--wide">
+          <h3 class="card-title" data-i18n="adminChartRadar">学生能力雷达图</h3>
+          <canvas id="chartRadar"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <a href="/quiz" class="tabbar-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h16M4 12h16M4 18h10"/>
+      </svg>
+      <span data-i18n="tabQuiz">答题</span>
+    </a>
+    <a href="/wrong" class="tabbar-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/>
+      </svg>
+      <span data-i18n="tabWrong">错题</span>
+    </a>
+    <a href="/admin" class="tabbar-item active">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span data-i18n="tabAdmin">管理</span>
+    </a>
+    <a href="/me" class="tabbar-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+      </svg>
+      <span data-i18n="tabMe">我的</span>
+    </a>
+  </nav>
+
+  <script src="/static/admin.js"></script>
+</body>
+</html>

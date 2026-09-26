@@ -30,5 +30,12 @@
     "role": "student",
     "phone": "18472739296",
     "avatar": "/static/avatars/lsq_9449a25e.jpg"
+  },
+  {
+    "username": "lsj",
+    "password": "scrypt:32768:8:1$Vg8ytXwXvljBTUDw$68ed4f093284d1250b9bc71479b92b651e4d933a9394a3cd2f5eaa719ae0af8d182d94419c4090953b505dc62b2ab5caa363a0c2af335826ba9616271b92859f",
+    "role": "admin",
+    "phone": "15576848998",
+    "avatar": "/static/avatars/lsj_2c89c5a5.jpg"
   }
 ]

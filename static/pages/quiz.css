@@ -394,51 +394,6 @@
   transform: scale(0.98);
 }
 
-/* ---- 底部三栏 ---- */
-
-.tabbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 62px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 0.5px solid rgba(180, 210, 240, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-.tabbar-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  flex: 1;
-  height: 100%;
-  text-decoration: none;
-  color: #9ab2c8;
-  font-size: 11px;
-  transition: color 0.2s;
-}
-
-.tabbar-item:hover {
-  color: #5a9fd4;
-}
-
-.tabbar-item.active {
-  color: #5a9fd4;
-}
-
-.tabbar-item svg {
-  display: block;
-}
-
 /* ---- 响应式 ---- */
 
 @media (max-width: 720px) {

@@ -55,7 +55,10 @@ def register_auth_routes(app):
                         and uinfo.get("role") == role):
                     session["username"] = uname
                     session["role"] = role
-                    redirect = "/quiz" if role == "student" else "/wrong"
+                    if role == "admin":
+                        redirect = "/admin"
+                    else:
+                        redirect = "/quiz"
                     return jsonify({"success": True, "redirect": redirect})
             return jsonify({"success": False, "message": "手机号、密码或身份错误"})
 
@@ -64,7 +67,10 @@ def register_auth_routes(app):
         if user and check_password_hash(user.get("password", ""), password) and user.get("role") == role:
             session["username"] = username
             session["role"] = role
-            redirect = "/quiz" if role == "student" else "/wrong"
+            if role == "admin":
+                redirect = "/admin"
+            else:
+                redirect = "/quiz"
             return jsonify({"success": True, "redirect": redirect})
         return jsonify({"success": False, "message": "账号或密码错误"})
 

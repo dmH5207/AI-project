@@ -17,10 +17,18 @@
       </svg>
     </a>
     <div class="header-center">
-      <h1 class="practice-title">实操式练习</h1>
+      <h1 class="practice-title" data-i18n="practiceTitle">实操式练习</h1>
       <p class="practice-progress" id="progressText">第 1 / 5 步</p>
     </div>
-    <div class="header-right"></div>
+    <div class="header-right">
+      <div class="lang-switch" id="langSwitch">
+        <span class="lang-label" data-lang="zh">中</span>
+        <div class="lang-toggle" id="langToggle">
+          <div class="lang-knob" id="langKnob"></div>
+        </div>
+        <span class="lang-label" data-lang="en">EN</span>
+      </div>
+    </div>
   </header>
 
   <main class="practice-main">
@@ -28,7 +36,7 @@
     <!-- 任务区 -->
     <section id="taskArea" class="task-area">
       <div class="task-card">
-        <p class="task-label">本次任务</p>
+        <p class="task-label" data-i18n="practiceTaskLabel">本次任务</p>
         <h2 class="task-title" id="taskTitle">加载中...</h2>
         <p class="task-desc" id="taskDesc"></p>
       </div>
@@ -53,60 +61,62 @@
           id="answerInput"
           class="answer-input"
           rows="5"
+          data-i18n-placeholder="practiceAnswerPlaceholder"
           placeholder="在此写下你的回答..."
         ></textarea>
 
-        <button class="submit-btn" id="submitBtn" disabled>提交这一步</button>
+        <button class="submit-btn" id="submitBtn" disabled data-i18n="practiceSubmitStep">提交这一步</button>
       </div>
 
       <!-- 反馈区（提交后出现） -->
       <div class="feedback-card" id="feedbackCard" style="display:none;">
-        <p class="feedback-label">AI 反馈</p>
+        <p class="feedback-label" data-i18n="practiceFeedbackLabel">AI 反馈</p>
         <div class="feedback-text" id="feedbackText"></div>
-        <button class="next-step-btn" id="nextStepBtn">进入下一步</button>
+        <button class="next-step-btn" id="nextStepBtn" data-i18n="practiceNextStep">进入下一步</button>
       </div>
     </section>
 
     <!-- 报告区（全部完成后出现） -->
     <section id="reportArea" style="display:none;">
       <div class="report-card">
-        <h2>实操任务完成</h2>
-        <p class="report-sub">你已完成 5 步实操练习</p>
+        <h2 data-i18n="practiceDone">实操任务完成</h2>
+        <p class="report-sub" data-i18n="practiceDoneSub">你已完成 5 步实操练习</p>
 
         <div class="report-section">
-          <h3>总评</h3>
+          <h3 data-i18n="overallComment">总评</h3>
           <p id="reportComment"></p>
         </div>
 
         <div class="report-section">
-          <h3>亮点</h3>
+          <h3 data-i18n="highlights">亮点</h3>
           <ul id="reportHighlights"></ul>
         </div>
 
         <div class="report-section">
-          <h3>改进建议</h3>
+          <h3 data-i18n="suggestions">改进建议</h3>
           <ul id="reportSuggestions"></ul>
         </div>
 
         <div class="report-section">
-          <h3>分数表</h3>
+          <h3 data-i18n="scoreTable">分数表</h3>
           <div id="reportScoreTable" class="score-table"></div>
         </div>
 
         <div class="report-section">
-          <h3>能力雷达图</h3>
+          <h3 data-i18n="radarChart">能力雷达图</h3>
           <div id="reportRadar" class="radar-box"></div>
         </div>
 
         <div class="report-actions">
-          <button class="report-btn primary" id="backToModesBtn">返回模式选择</button>
-          <button class="report-btn" id="retryBtn">再来一次</button>
+          <button class="report-btn primary" id="backToModesBtn" data-i18n="backToModes">返回模式选择</button>
+          <button class="report-btn" id="retryBtn" data-i18n="tryAgain">再来一次</button>
         </div>
       </div>
     </section>
 
   </main>
 
+  <script src="/static/i18n.js"></script>
   <script src="/static/practice.js"></script>
 </body>
 </html>

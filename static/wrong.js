@@ -70,10 +70,11 @@
       var qid = item.id || item.question_id || num;
       var userAnswer = item.user_answer || item.wrong_answer || "未作答";
       var correctAnswer = item.correct_answer || item.answer || "";
-      var question = item.question || item.text || "";
-      var dimension = item.dimension || "综合";
+      var isEn = (window.currentLang === "en");
+      var question = (isEn && item.question_en) ? item.question_en : (item.question || item.text || "");
+      var dimension = (isEn && item.dimension_en) ? item.dimension_en : (item.dimension || "综合");
       var time = item.time || "";
-      var options = item.options || [];
+      var options = (isEn && item.options_en) ? item.options_en : (item.options || []);
 
       html += '<div class="wrong-card" data-id="' + qid + '">';
 
@@ -114,7 +115,7 @@
       '</div>';
 
       html += '<div class="expand-section">' +
-        '<button class="expand-trigger" onclick="toggleExpand(this, ' + qid + ')">' +
+        '<button class="expand-trigger" onclick="toggleExpand(this, \'' + qid + '\')">' +
           '<span>' + t("viewAnalysis") + '</span>' +
           '<svg class="expand-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
         '</button>' +
@@ -196,7 +197,7 @@ function loadAnalysis(qid, container) {
       html += '<div class="practice-block">' +
         '<div class="practice-title">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6.4-4.8-6.4 4.8 2.4-7.2-6-4.8h7.6z"/></svg>' +
-          t("practiceTitle") +
+          t("wrongPracticeTitle") +
         '</div>' +
         '<p class="practice-question">' + (p.question || "") + '</p>';
 
@@ -217,10 +218,10 @@ function loadAnalysis(qid, container) {
       '</div>';
 
       html += '<div class="action-row">' +
-        '<button class="master-btn" onclick="toggleMaster(this, ' + qid + ')">' +
+        '<button class="master-btn" onclick="toggleMaster(this, \'' + qid + '\')">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' + t("markMastered") +
         '</button>' +
-        '<button class="remove-btn" onclick="removeWrong(' + qid + ')">' +
+        '<button class="remove-btn" onclick="removeWrong(\'' + qid + '\')">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 10v6M14 10v6"/></svg>' + t("remove") +
         '</button>' +
       '</div>';
