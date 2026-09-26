@@ -12,12 +12,6 @@
     "phone": "13800000002"
   },
   {
-    "username": "DengMingHui",
-    "password": "scrypt:32768:8:1$iGG88RUmmOXahomX$0fe549603e9febdcb7805086c5d5f40b9764038df18768c708dafeb256a5d866673af10874fbeb86327adc99046eab7c3cc553d7b44394196f373a0fc0d4441d",
-    "role": "student",
-    "phone": "18871811052"
-  },
-  {
     "username": "xfj",
     "password": "scrypt:32768:8:1$YSK78dbo2kOysrnN$381b452dea4df62c58e3ad6c7f9f83b3e7aa5737c7d4386f269f807de5a8bac3197d588d48ec65e43c2dfce609d1cf3f3ab3e0f4e1117d8058bde4916d0c2ad0",
     "role": "student",
@@ -37,5 +31,11 @@
     "role": "admin",
     "phone": "15576848998",
     "avatar": "/static/avatars/lsj_2c89c5a5.jpg"
-  }
+  },
+  {
+    "username": "Deng MingHui",
+    "password": "scrypt:32768:8:1$aKfVxS5vFhMd1e5F$36238d9203a936a202f0edc99c68a8d0cad677073e452365feb0ad3a6ca1b2614ffaed370c128fa2930c47bb4c8f37ad6e9afebcac59433cf9b48117d9b4987f",
+    "role": "student",
+    "phone": "18871811052"
+  },
 ]
