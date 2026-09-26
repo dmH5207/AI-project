@@ -161,6 +161,57 @@ def register_admin_routes(app):
         except Exception as e:
             return jsonify({"success": False, "message": "统计接口错误: " + str(e)})
 
+    @app.route("/api/admin/wrong_list", methods=["GET"])
+    def admin_wrong_list():
+        if session.get("role") != "admin":
+            return jsonify({"success": False, "message": "无权限"})
+        try:
+            import ai as _ai_mod
+            wrong_data = load_json(WRONG_FILE, {})
+            _placeholder_keywords = ["对话题", "实操题", "参考AI", "参考答案", "开放题"]
+            _need_save = False
+            for _uname in wrong_data:
+                if not isinstance(wrong_data[_uname], list):
+                    continue
+                for _it in wrong_data[_uname]:
+                    if not isinstance(_it, dict):
+                        continue
+                    _ca = _it.get("correct_answer", "")
+                    if any(kw in _ca for kw in _placeholder_keywords):
+                        _q = _it.get("question", "")
+                        _d = _it.get("dimension", "")
+                        _ref = _ai_mod.generate_reference_answer(_q, _d)
+                        _it["correct_answer"] = _ref
+                        _need_save = True
+            if _need_save:
+                save_json(WRONG_FILE, wrong_data)
+            dim_map = {}
+            for username, items in wrong_data.items():
+                if not isinstance(items, list):
+                    continue
+                for it in items:
+                    if not isinstance(it, dict):
+                        continue
+                    dim = it.get("dimension", "未分类")
+                    dim_en = it.get("dimension_en", dim)
+                    if dim not in dim_map:
+                        dim_map[dim] = {"dimension": dim, "dimension_en": dim_en, "items": []}
+                    entry = {
+                        "id": it.get("id", ""),
+                        "question": it.get("question", ""),
+                        "question_en": it.get("question_en", ""),
+                        "user_answer": it.get("user_answer", ""),
+                        "correct_answer": it.get("correct_answer", ""),
+                        "username": username,
+                        "time": it.get("time", ""),
+                        "mastered": it.get("mastered", False),
+                    }
+                    dim_map[dim]["items"].append(entry)
+            result = sorted(dim_map.values(), key=lambda d: len(d["items"]), reverse=True)
+            return jsonify({"success": True, "data": result})
+        except Exception as e:
+            return jsonify({"success": False, "message": "错题列表接口错误: " + str(e)})
+
 
 # ---------- 命令行入口 ----------
 

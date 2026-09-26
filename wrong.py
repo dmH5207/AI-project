@@ -258,11 +258,33 @@ def register_wrong_routes(app):
         options = item.get("options", [])
         dimension = item.get("dimension", "")
 
+        _placeholder_keywords = ["对话题", "实操题", "参考AI", "参考答案", "开放题"]
+        _is_placeholder = any(kw in correct_answer for kw in _placeholder_keywords)
+        if _is_placeholder:
+            import ai as _ai_mod
+            _ref = _ai_mod.generate_reference_answer(question, dimension, lang=lang)
+            correct_answer = _ref
+            item["correct_answer"] = _ref
+            _wrong_dict = _read_wrong_dict()
+            if isinstance(_wrong_dict, dict) and "wrong_answers" not in _wrong_dict:
+                for _uname in _wrong_dict:
+                    if isinstance(_wrong_dict[_uname], list):
+                        for _it in _wrong_dict[_uname]:
+                            if _it.get("id") == qid or _it.get("question_id") == qid:
+                                _it["correct_answer"] = _ref
+                _save_wrong_dict(_wrong_dict)
+            else:
+                for _it in items:
+                    if _it.get("id") == qid or _it.get("question_id") == qid:
+                        _it["correct_answer"] = _ref
+                _write_wrong(items)
+
         analysis = _ai_analyze(question, user_answer, correct_answer, options, dimension, lang)
         practice = _ai_variants(question, user_answer, correct_answer, options, dimension, lang)
 
         return jsonify({
             "success": True,
             "analysis": analysis,
-            "practice": practice
+            "practice": practice,
+            "correct_answer": correct_answer
         })

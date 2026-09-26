@@ -215,7 +215,10 @@ def register_quiz_routes(app):
             dim_obj = {"key": q.get("dimension", ""), "name": q.get("dimension", ""), "name_en": q.get("dimension_en", q.get("dimension", "")), "weight": 20}
             score, _ = ai.score_answer(dim_obj, user_answer, lang=lang)
             correct = score >= 12
-            correct_answer = q.get("reference", "（参考答案见解析）")
+            _ref = q.get("reference", "")
+            if not _ref:
+                _ref = ai.generate_reference_answer(q.get("question", ""), q.get("dimension", ""), lang=lang)
+            correct_answer = _ref
         else:
             correct = (user_answer == correct_answer)
 
@@ -335,12 +338,14 @@ def register_dialog_routes(app):
         if score < d["weight"] * 0.6:
             username = session.get("username") or "anonymous"
             wrong = _get_wrong()
+            _dialog_q = ai.generate_question(d["key"])
+            _ref_answer = ai.generate_reference_answer(_dialog_q, d["name"], lang=lang)
             wrong_entry_2 = {
                 "id": f"dialog_{index}_{d['key']}",
-                "question": ai.generate_question(d["key"]),
+                "question": _dialog_q,
                 "options": [],
                 "user_answer": user_answer,
-                "correct_answer": "（对话题，参考AI点评）",
+                "correct_answer": _ref_answer,
                 "dimension": d["name"],
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 "mastered": False,
@@ -492,12 +497,13 @@ def register_practice_routes(app):
         if score < step["weight"] * 0.6:
             username = session.get("username") or "anonymous"
             wrong = _get_wrong()
+            _practice_ref = ai.generate_reference_answer(step["question"], step["dimension"], lang=lang)
             wrong_entry_3 = {
                 "id": f"practice_{index}_{step['dimension_key']}",
                 "question": step["question"],
                 "options": [],
                 "user_answer": user_answer,
-                "correct_answer": "（实操题，参考AI反馈）",
+                "correct_answer": _practice_ref,
                 "dimension": step["dimension"],
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 "mastered": False,

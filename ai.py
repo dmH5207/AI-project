@@ -214,6 +214,32 @@ def score_answer(dimension, user_answer, lang="zh"):
     return score, comment
 
 
+def generate_reference_answer(question, dimension, lang="zh"):
+    dim_name = dimension if isinstance(dimension, str) else dimension.get("name", "")
+    if lang == "en":
+        prompt = (
+            f"Dimension: {dim_name}\n"
+            f"Question: {question}\n\n"
+            f"Provide a concise, accurate reference answer (2-4 sentences).\n"
+            f"Focus on key concepts and practical examples. Reply in English."
+        )
+        sys_msg = "You are an AI literacy expert. Provide clear, accurate reference answers. Reply in English."
+    else:
+        prompt = (
+            f"维度：{dim_name}\n"
+            f"问题：{question}\n\n"
+            f"请给出一个简洁准确的参考答案（2-4句话）。\n"
+            f"重点阐述核心概念，可举例说明。用中文回复。"
+        )
+        sys_msg = "你是AI素养专家，给出清晰准确的参考答案，用中文回复。"
+    result = _call_spark(sys_msg, prompt, max_tokens=256, temperature=0.3)
+    if result:
+        return result.strip()
+    if lang == "en":
+        return f"This question about {dim_name} requires understanding of core concepts and practical application."
+    return f"本题涉及{dim_name}的核心概念与实际应用，需结合具体场景作答。"
+
+
 def generate_reply(dimension_key, user_answer, lang="zh"):
     dim = next((d for d in DIMENSIONS if d["key"] == dimension_key), DIMENSIONS[0])
     question = generate_question(dimension_key, lang=lang)
