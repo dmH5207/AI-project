@@ -98,7 +98,7 @@
     fetch("/api/dialog/reply", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answer: text })
+      body: JSON.stringify({ answer: text, lang: window.currentLang || "zh" })
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
@@ -107,7 +107,7 @@
         inputHint.textContent = "";
 
         if (!data.success) {
-          addMessage("ai", data.message || "出错了");
+          addMessage("ai", data.message || (window.currentLang === "en" ? "Error occurred" : "出错了"));
           updateSendBtn();
           return;
         }
@@ -116,13 +116,15 @@
         addMessage("ai", data.reply);
 
         if (data.finished) {
-          progressText.textContent = (window.currentLang === "en" ? "Done" : "已完成") + " · 6 / 6";
+          progressText.textContent = (window.currentLang === "en" ? "Done" : "已完成") + " \u00b7 6 / 6";
           inputHint.textContent = t("practiceDone");
           updateSendBtn();
           showReport();
         } else {
+          var isEn = window.currentLang === "en";
+          var dim = (isEn && data.dimension_en) ? data.dimension_en : data.dimension;
           progressText.textContent =
-            t("round") + " " + (currentRound + 1) + " / " + totalRounds + " " + t("roundUnit") + " · " + data.dimension;
+            t("round") + " " + (currentRound + 1) + " / " + totalRounds + " " + t("roundUnit") + " \u00b7 " + dim;
           updateSendBtn();
         }
       })
@@ -140,7 +142,8 @@
   function showReport() {
     fetch("/api/dialog/end", {
       method: "POST",
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang: window.currentLang || "zh" })
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
@@ -287,8 +290,11 @@
           return;
         }
         currentRound = 0;
-        progressText.textContent = t("round") + " 1 / " + totalRounds + " " + t("roundUnit") + " · " + data.dimension;
-        addMessage("ai", data.question);
+        var isEn = window.currentLang === "en";
+        var dim = (isEn && data.dimension_en) ? data.dimension_en : data.dimension;
+        var q = (isEn && data.question_en) ? data.question_en : data.question;
+        progressText.textContent = t("round") + " 1 / " + totalRounds + " " + t("roundUnit") + " \u00b7 " + dim;
+        addMessage("ai", q);
         updateSendBtn();
       })
       .catch(function () {

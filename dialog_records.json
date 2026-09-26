@@ -1,1 +1,142 @@
-{}
+{
+  "xfj": [
+    {
+      "records": [
+        {
+          "answer": "1",
+          "dimension": "AI基础认知",
+          "dimension_key": "basic",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "2",
+          "dimension": "AI工具使用",
+          "dimension_key": "tools",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "answer": "3",
+          "dimension": "提示词工程",
+          "dimension_key": "prompt",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "4",
+          "dimension": "AI结果评估与优化",
+          "dimension_key": "evaluate",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "answer": "5",
+          "dimension": "AI伦理与安全",
+          "dimension_key": "ethics",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "dimension": "人机协同解决问题",
+          "dimension_key": "collab",
+          "answer": "6",
+          "score": 0,
+          "weight": 15
+        }
+      ]
+    },
+    {
+      "records": [
+        {
+          "answer": "123",
+          "dimension": "AI基础认知",
+          "dimension_key": "basic",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "123",
+          "dimension": "AI工具使用",
+          "dimension_key": "tools",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "answer": "123",
+          "dimension": "提示词工程",
+          "dimension_key": "prompt",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "123",
+          "dimension": "AI结果评估与优化",
+          "dimension_key": "evaluate",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "answer": "123",
+          "dimension": "AI伦理与安全",
+          "dimension_key": "ethics",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "dimension": "人机协同解决问题",
+          "dimension_key": "collab",
+          "answer": "123",
+          "score": 0,
+          "weight": 15
+        }
+      ]
+    },
+    {
+      "records": [
+        {
+          "answer": "1",
+          "dimension": "AI基础认知",
+          "dimension_key": "basic",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "1",
+          "dimension": "AI工具使用",
+          "dimension_key": "tools",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "answer": "1",
+          "dimension": "提示词工程",
+          "dimension_key": "prompt",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "1",
+          "dimension": "AI结果评估与优化",
+          "dimension_key": "evaluate",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "answer": "1",
+          "dimension": "AI伦理与安全",
+          "dimension_key": "ethics",
+          "score": 0,
+          "weight": 15
+        },
+        {
+          "dimension": "人机协同解决问题",
+          "dimension_key": "collab",
+          "answer": "1",
+          "score": 0,
+          "weight": 15
+        }
+      ]
+    }
+  ]
+}

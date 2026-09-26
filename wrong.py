@@ -5,6 +5,7 @@ import json
 import os
 from flask import request, jsonify, session
 from datetime import datetime
+import ai
 
 WRONG_FILE = os.path.join(os.path.dirname(__file__), "wrong_answers.json")
 
@@ -57,15 +58,140 @@ def _find_item(all_items, qid):
             return it
     return None
 
+def _ai_analyze(question, user_answer, correct_answer, options, dimension, lang="zh"):
+    if lang == "en":
+        opts_text = "\n".join(options) if options else "N/A"
+        prompt = (
+            f"Question: {question}\n"
+            f"Options:\n{opts_text}\n"
+            f"Student answer: {user_answer}\n"
+            f"Correct answer: {correct_answer}\n"
+            f"Dimension: {dimension}\n\n"
+            f"Analyze why the student chose the wrong answer. Explain the correct answer and the key concept.\n"
+            f"Be specific and educational. Reply in English."
+        )
+        sys_msg = "You are an AI literacy assessment teacher. Analyze wrong answers clearly and helpfully. Reply in English."
+    else:
+        opts_text = "\n".join(options) if options else "无"
+        prompt = (
+            f"题目：{question}\n"
+            f"选项：\n{opts_text}\n"
+            f"学生答案：{user_answer}\n"
+            f"正确答案：{correct_answer}\n"
+            f"维度：{dimension}\n\n"
+            f"请分析学生为什么选错了，解释正确答案的原理和关键知识点。\n"
+            f"要求具体、有教育意义，用中文回复。"
+        )
+        sys_msg = "你是AI素养评估老师，分析错题要具体、有建设性，用中文回复。"
+
+    result = ai._call_spark(sys_msg, prompt, max_tokens=384, temperature=0.3)
+    if result:
+        if lang == "en":
+            header = f"[Question] {question}\n\n[Your Answer] {user_answer}\n[Correct Answer] {correct_answer}\n\n[Analysis]\n"
+        else:
+            header = f"【题目】{question}\n\n【你的答案】{user_answer}\n【正确答案】{correct_answer}\n\n【解析】\n"
+        return header + result
+
+    if lang == "en":
+        return (
+            f"[Question] {question}\n\n"
+            f"[Your Answer] {user_answer}\n"
+            f"[Correct Answer] {correct_answer}\n\n"
+            f"[Analysis] You chose {user_answer}, but the correct answer is {correct_answer}. "
+            f"This suggests your understanding of {dimension} needs deepening. "
+            f"Review the core concepts and try the variant practice below."
+        )
+    return (
+        f"【题目】{question}\n\n"
+        f"【你的答案】{user_answer}\n"
+        f"【正确答案】{correct_answer}\n\n"
+        f"【解析】你选择了 {user_answer}，但正确答案是 {correct_answer}。"
+        f"这说明对{dimension}相关知识点的理解还不够深入。"
+        f"建议回顾该知识点的核心概念，注意区分易混淆的选项，"
+        f"并通过变式训练加深理解。"
+    )
+
+
+def _ai_variants(question, user_answer, correct_answer, options, dimension, lang="zh"):
+    if lang == "en":
+        opts_text = "\n".join(options) if options else "N/A"
+        prompt = (
+            f"Original question: {question}\n"
+            f"Options:\n{opts_text}\n"
+            f"Correct answer: {correct_answer}\n"
+            f"Dimension: {dimension}\n\n"
+            f"Generate a variant question on the same topic but from a different angle.\n"
+            f"Strictly reply in JSON format:\n"
+            f'{{"question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "X", "hint": "..."}}\n'
+            f"The hint should explain the reasoning. Reply in English."
+        )
+        sys_msg = "You are an AI literacy assessment teacher. Generate variant questions for practice. Reply only in JSON, in English."
+    else:
+        opts_text = "\n".join(options) if options else "无"
+        prompt = (
+            f"原题：{question}\n"
+            f"选项：\n{opts_text}\n"
+            f"正确答案：{correct_answer}\n"
+            f"维度：{dimension}\n\n"
+            f"请生成一道同知识点但不同角度的变式题，帮助学生举一反三。\n"
+            f"严格按 JSON 格式回复：\n"
+            f'{{"question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "X", "hint": "..."}}\n'
+            f"hint 为解题思路。用中文回复。"
+        )
+        sys_msg = "你是AI素养评估老师，生成变式题帮助学生举一反三。只回复JSON。"
+
+    result = ai._call_spark(sys_msg, prompt, max_tokens=384, temperature=0.4)
+    if result:
+        try:
+            clean = result.strip()
+            if clean.startswith("```"):
+                clean = clean.split("\n", 1)[-1].rsplit("```", 1)[0]
+            clean = clean.strip()
+            if clean.startswith("json"):
+                clean = clean[4:].strip()
+            data = json.loads(clean)
+            if data.get("question") and data.get("options") and data.get("answer"):
+                return data
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    if lang == "en":
+        return {
+            "question": f"[Variant] About {dimension}, which statement is correct?",
+            "options": [
+                f"A. The core concept of {dimension} requires understanding in context",
+                f"B. {dimension} only requires memorization, not understanding",
+                f"C. {dimension} is completely unrelated to other fields",
+                f"D. {dimension} has only one fixed application method"
+            ],
+            "answer": "A",
+            "hint": "The same concept may appear differently in different contexts. Understand the essence rather than memorize. Exclude absolute statements (like 'only', 'completely', 'one fixed')."
+        }
+    return {
+        "question": f"【变式训练】关于{dimension}，以下哪个说法是正确的？",
+        "options": [
+            f"A. {dimension}的核心概念需要结合具体场景理解",
+            f"B. {dimension}只需要记忆，不需要理解",
+            f"C. {dimension}与其他领域完全无关",
+            f"D. {dimension}只有一种固定的应用方式"
+        ],
+        "answer": "A",
+        "hint": "变式训练的核心思路：同一知识点在不同场景下的表现可能不同，需要理解本质而非死记硬背。排除绝对化表述（如「只需要」、「完全无关」、「只有一种」），选择强调理解和场景的选项。"
+    }
+
+
 def register_wrong_routes(app):
 
     @app.route("/api/wrong/list")
     def wrong_list():
         items = _read_wrong()
         items.sort(key=lambda x: x.get("num", x.get("id", 0)))
+        result = []
         for i, it in enumerate(items):
-            it.setdefault("num", i + 1)
-        return jsonify({"success": True, "wrong_answers": items})
+            copy = dict(it)
+            copy.setdefault("num", i + 1)
+            result.append(copy)
+        return jsonify({"success": True, "wrong_answers": result})
 
     @app.route("/api/wrong/report")
     def wrong_report():
@@ -83,8 +209,9 @@ def register_wrong_routes(app):
         data = _read_wrong_dict()
         if isinstance(data, dict) and "wrong_answers" not in data:
             for username in data:
-                data[username] = [it for it in data[username]
-                                   if it.get("id") != qid and it.get("question_id") != qid]
+                if isinstance(data[username], list):
+                    data[username] = [it for it in data[username]
+                                       if it.get("id") != qid and it.get("question_id") != qid]
             _save_wrong_dict(data)
         else:
             items = _read_wrong()
@@ -99,6 +226,8 @@ def register_wrong_routes(app):
         data = _read_wrong_dict()
         if isinstance(data, dict) and "wrong_answers" not in data:
             for username in data:
+                if not isinstance(data[username], list):
+                    continue
                 for it in data[username]:
                     if it.get("id") == qid or it.get("question_id") == qid:
                         it["mastered"] = flag
@@ -114,10 +243,14 @@ def register_wrong_routes(app):
 
     @app.route("/api/wrong/analyze/<int:qid>", methods=["POST"])
     def wrong_analyze(qid):
+        data = request.get_json(silent=True) or {}
+        lang = data.get("lang", "zh")
+
         items = _read_wrong()
         item = _find_item(items, qid)
         if not item:
-            return jsonify({"success": False, "message": "错题不存在"})
+            msg = "Wrong answer not found" if lang == "en" else "错题不存在"
+            return jsonify({"success": False, "message": msg})
 
         question = item.get("question", item.get("text", ""))
         user_answer = item.get("user_answer", item.get("wrong_answer", ""))
@@ -125,29 +258,8 @@ def register_wrong_routes(app):
         options = item.get("options", [])
         dimension = item.get("dimension", "")
 
-        analysis = (
-            "\u3010\u9898\u76ee\u3011" + question + "\n\n"
-            "\u3010\u4f60\u7684\u7b54\u6848\u3011" + str(user_answer) + "\n"
-            "\u3010\u6b63\u786e\u7b54\u6848\u3011" + str(correct_answer) + "\n\n"
-            "\u3010\u89e3\u6790\u3011\u4f60\u9009\u62e9\u4e86 " + str(user_answer) + "\uff0c\u4f46\u6b63\u786e\u7b54\u6848\u662f " + str(correct_answer) + "\u3002"
-            "\u8fd9\u8bf4\u660e\u5bf9" + dimension + "\u76f8\u5173\u77e5\u8bc6\u70b9\u7684\u7406\u89e3\u8fd8\u4e0d\u591f\u6df1\u5165\u3002"
-            "\u5efa\u8bae\u56de\u987e\u8be5\u77e5\u8bc6\u70b9\u7684\u6838\u5fc3\u6982\u5ff5\uff0c\u6ce8\u610f\u533a\u5206\u6613\u6df7\u6dc6\u7684\u9009\u9879\uff0c"
-            "\u5e76\u901a\u8fc7\u53d8\u5f0f\u8bad\u7ec3\u52a0\u6df1\u7406\u89e3\u3002"
-        )
-
-        practice = {
-            "question": "\u3010\u53d8\u5f0f\u8bad\u7ec3\u3011\u5173\u4e8e" + dimension + "\uff0c\u4ee5\u4e0b\u54ea\u4e2a\u8bf4\u6cd5\u662f\u6b63\u786e\u7684\uff1f",
-            "options": [
-                "A. " + dimension + "\u7684\u6838\u5fc3\u6982\u5ff5\u9700\u8981\u7ed3\u5408\u5177\u4f53\u573a\u666f\u7406\u89e3",
-                "B. " + dimension + "\u53ea\u9700\u8981\u8bb0\u5fc6\uff0c\u4e0d\u9700\u8981\u7406\u89e3",
-                "C. " + dimension + "\u4e0e\u5176\u4ed6\u9886\u57df\u5b8c\u5168\u65e0\u5173",
-                "D. " + dimension + "\u53ea\u6709\u4e00\u79cd\u56fa\u5b9a\u7684\u5e94\u7528\u65b9\u5f0f"
-            ],
-            "answer": "A",
-            "hint": "\u53d8\u5f0f\u8bad\u7ec3\u7684\u6838\u5fc3\u601d\u8def\uff1a\u540c\u4e00\u77e5\u8bc6\u70b9\u5728\u4e0d\u540c\u573a\u666f\u4e0b\u7684\u8868\u73b0\u53ef\u80fd\u4e0d\u540c\uff0c"
-                    "\u9700\u8981\u7406\u89e3\u672c\u8d28\u800c\u975e\u6b7b\u8bb0\u786c\u80cc\u3002\u6392\u9664\u7edd\u5bf9\u5316\u8868\u8ff0\uff08\u5982\u201c\u53ea\u9700\u8981\u201d\u3001\u201c\u5b8c\u5168\u65e0\u5173\u201d\u3001\u201c\u53ea\u6709\u4e00\u79cd\u201d\uff09\uff0c"
-                    "\u9009\u62e9\u5f3a\u8c03\u7406\u89e3\u548c\u573a\u666f\u7684\u9009\u9879\u3002"
-        }
+        analysis = _ai_analyze(question, user_answer, correct_answer, options, dimension, lang)
+        practice = _ai_variants(question, user_answer, correct_answer, options, dimension, lang)
 
         return jsonify({
             "success": True,

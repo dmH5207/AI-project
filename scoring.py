@@ -2,11 +2,12 @@
 AI评分模块：负责调用大模型API，给开放式题目的回答打分。
 """
 
+import os
 import requests
 import json
 
-API_URL = "换成你实际使用的大模型API地址"
-API_KEY = "换成你的API密钥"
+API_URL = os.environ.get("AI_API_URL", "")
+API_KEY = os.environ.get("AI_API_KEY", "")
 
 
 def score_open_ended(question_text, rubric, user_answer):

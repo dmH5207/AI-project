@@ -1,27 +1,34 @@
 [
   {
     "username": "admin",
-    "password": "admin123",
+    "password": "scrypt:32768:8:1$PanYAoG46tkxmALQ$8f17e1d36c522b75b79aa72c0a6b2c9fbbf59c6d194fc64b29b41b39d157621b80d4cc6a045ca8710f6fe7964a1d4d41c51e9d6860f1c2cec510ff589fbb0f1a",
     "role": "admin",
     "phone": "13800000001"
   },
   {
     "username": "student",
-    "password": "student123",
+    "password": "scrypt:32768:8:1$WEdhH6yNk94dJeKg$cfb8c3237b10bf8c81c9979dc4f850e82abcbae939ef3b7a93cbec5d0eec3d992ead0f21964b8af84708d75183065e8793e77e75f9db26e3fd69b3818335742e",
     "role": "student",
     "phone": "13800000002"
   },
   {
     "username": "DengMingHui",
-    "password": "Dmh1887181@",
+    "password": "scrypt:32768:8:1$iGG88RUmmOXahomX$0fe549603e9febdcb7805086c5d5f40b9764038df18768c708dafeb256a5d866673af10874fbeb86327adc99046eab7c3cc553d7b44394196f373a0fc0d4441d",
     "role": "student",
     "phone": "18871811052"
   },
   {
     "username": "xfj",
-    "password": "123456",
+    "password": "scrypt:32768:8:1$YSK78dbo2kOysrnN$381b452dea4df62c58e3ad6c7f9f83b3e7aa5737c7d4386f269f807de5a8bac3197d588d48ec65e43c2dfce609d1cf3f3ab3e0f4e1117d8058bde4916d0c2ad0",
     "role": "student",
     "phone": "13875346876",
     "avatar": "/static/avatars/xfj_1816961d.jpg"
+  },
+  {
+    "username": "lsq",
+    "password": "scrypt:32768:8:1$eNnUNez64IroekLu$335fda35d12453b44ee21bd0ccb9e984e0238897011d8e135f960487afc8aef1835208f31dd211791389f3bf6a40ad7cdd54912f1ef80c9817021507246d2a45",
+    "role": "student",
+    "phone": "18472739296",
+    "avatar": "/static/avatars/lsq_9449a25e.jpg"
   }
 ]

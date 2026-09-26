@@ -170,7 +170,11 @@ function toggleExpand(btn, qid) {
 function loadAnalysis(qid, container) {
   container.innerHTML = '<div class="analysis-block"><div class="loading-spinner" style="margin:0 auto;"></div><p style="text-align:center;color:#7a9bb8;font-size:13px;margin-top:10px;">' + t("aiAnalyzing") + '</p></div>';
 
-  fetch("/api/wrong/analyze/" + qid, { method: "POST" })
+  fetch("/api/wrong/analyze/" + qid, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ lang: window.currentLang || "zh" })
+  })
     .then(function (res) {
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.json();
@@ -199,15 +203,15 @@ function loadAnalysis(qid, container) {
       if (p.options && p.options.length > 0) {
         html += '<div class="practice-options">';
         p.options.forEach(function (opt) {
-          var isAnswer = (p.answer && opt.indexOf(p.answer + ".") === 0);
-          var cls = isAnswer ? "practice-opt is-answer" : "practice-opt";
-          html += '<div class="' + cls + '">' + opt + '</div>';
+          var letter = opt.charAt(0);
+          html += '<div class="practice-opt" data-letter="' + letter + '" onclick="selectVariantAnswer(this, \'' + (p.answer || "") + '\')">' + opt + '</div>';
         });
         html += '</div>';
       }
 
-      html += '<div class="practice-hint">' +
-          '<div class="practice-hint-label">\uD83D\uDCA1 解题思路</div>' +
+      var isEn = window.currentLang === "en";
+      html += '<div class="practice-hint" style="display:none;">' +
+          '<div class="practice-hint-label">\uD83D\uDCA1 ' + (isEn ? "Reasoning" : "解题思路") + '</div>' +
           '<p class="practice-hint-text">' + (p.hint || "") + '</p>' +
         '</div>' +
       '</div>';
@@ -223,6 +227,7 @@ function loadAnalysis(qid, container) {
 
       container.innerHTML = html;
       container.setAttribute("data-loaded", "true");
+      container.setAttribute("data-answer", p.answer || "");
     })
     .catch(function () {
       container.innerHTML = '<div class="analysis-block">' +
@@ -282,4 +287,37 @@ function renumberCards() {
     var badge = card.querySelector(".wrong-num-badge");
     if (badge) badge.textContent = i + 1;
   });
+}
+
+function selectVariantAnswer(el, correctAnswer) {
+  var container = el.closest(".expand-content");
+  if (!container) return;
+
+  var allOpts = container.querySelectorAll(".practice-opt");
+  var alreadyAnswered = Array.from(allOpts).some(function (o) { return o.classList.contains("selected") || o.classList.contains("is-answer"); });
+  if (alreadyAnswered) return;
+
+  var letter = el.getAttribute("data-letter");
+  var isCorrect = (letter === correctAnswer);
+
+  allOpts.forEach(function (opt) {
+    var l = opt.getAttribute("data-letter");
+    if (l === correctAnswer) {
+      opt.classList.add("is-answer");
+    } else if (l === letter && !isCorrect) {
+      opt.classList.add("is-wrong");
+    }
+    opt.style.pointerEvents = "none";
+  });
+
+  el.classList.add("selected");
+
+  var hint = container.querySelector(".practice-hint");
+  if (hint) hint.style.display = "";
+
+  var isEn = window.currentLang === "en";
+  var feedback = document.createElement("div");
+  feedback.className = "variant-feedback " + (isCorrect ? "correct" : "wrong");
+  feedback.textContent = isCorrect ? (isEn ? "\u2713 Correct!" : "\u2713 回答正确！") : (isEn ? "\u2717 Incorrect. The correct answer is " + correctAnswer : "\u2717 回答错误，正确答案是 " + correctAnswer);
+  el.parentNode.appendChild(feedback);
 }

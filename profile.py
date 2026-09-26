@@ -4,11 +4,13 @@
 import os
 import uuid
 from flask import session, request, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
 from storage import load_json, save_json
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 AVATAR_DIR = os.path.join(os.path.dirname(__file__), "static", "avatars")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+MAX_AVATAR_SIZE = 2 * 1024 * 1024
 
 os.makedirs(AVATAR_DIR, exist_ok=True)
 
@@ -61,9 +63,9 @@ def register_profile_routes(app):
         user = users.get(username)
         if not user:
             return jsonify({"success": False, "message": "用户不存在"})
-        if user.get("password") != old_pwd:
+        if not check_password_hash(user.get("password", ""), old_pwd):
             return jsonify({"success": False, "message": "原密码错误"})
-        users[username]["password"] = new_pwd
+        users[username]["password"] = generate_password_hash(new_pwd)
         _save_users(users)
         return jsonify({"success": True, "message": "密码修改成功"})
 
@@ -80,6 +82,11 @@ def register_profile_routes(app):
         ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
         if ext not in ALLOWED_EXTENSIONS:
             return jsonify({"success": False, "message": "仅支持 png/jpg/jpeg/gif/webp 格式"})
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        if file_size > MAX_AVATAR_SIZE:
+            return jsonify({"success": False, "message": "图片大小不能超过 2MB"})
         filename = f"{username}_{uuid.uuid4().hex[:8]}.{ext}"
         filepath = os.path.join(AVATAR_DIR, filename)
         file.save(filepath)

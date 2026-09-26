@@ -49,7 +49,10 @@ window.I18N = {
     avatarTypeErr: "仅支持 png/jpg/gif/webp 格式",
     avatarSizeErr: "图片大小不能超过 2MB",
     avatarUploading: "上传中...",
-    avatarSuccess: "头像更新成功"
+    avatarSuccess: "头像更新成功",
+    reasoning: "解题思路",
+    variantCorrect: "✓ 回答正确！",
+    variantWrong: "✗ 回答错误，正确答案是"
   },
   en: {
     tabQuiz: "Quiz", tabWrong: "Wrong", tabMe: "Profile",
@@ -101,7 +104,10 @@ window.I18N = {
     avatarTypeErr: "Only png/jpg/gif/webp allowed",
     avatarSizeErr: "Image size must be under 2MB",
     avatarUploading: "Uploading...",
-    avatarSuccess: "Avatar updated"
+    avatarSuccess: "Avatar updated",
+    reasoning: "Reasoning",
+    variantCorrect: "✓ Correct!",
+    variantWrong: "✗ Incorrect. The correct answer is"
   }
 };
 

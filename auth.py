@@ -4,6 +4,7 @@
 """
 import os
 from flask import session, request, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
 from storage import load_json, save_json
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
@@ -23,6 +24,18 @@ def save_users(users_dict):
 
 # ---------- 路由 ----------
 
+def migrate_passwords():
+    users = load_users()
+    changed = False
+    for uname, uinfo in users.items():
+        pwd = uinfo.get("password", "")
+        if pwd and not pwd.startswith(("pbkdf2:", "sha256$", "sha512$", "scrypt:")):
+            uinfo["password"] = generate_password_hash(pwd)
+            changed = True
+    if changed:
+        save_users(users)
+
+
 def register_auth_routes(app):
 
     @app.route("/api/login", methods=["POST"])
@@ -38,7 +51,7 @@ def register_auth_routes(app):
         if phone:
             for uname, uinfo in users.items():
                 if (uinfo.get("phone") == phone
-                        and uinfo.get("password") == password
+                        and check_password_hash(uinfo.get("password", ""), password)
                         and uinfo.get("role") == role):
                     session["username"] = uname
                     session["role"] = role
@@ -48,7 +61,7 @@ def register_auth_routes(app):
 
         # 账号登录
         user = users.get(username)
-        if user and user.get("password") == password and user.get("role") == role:
+        if user and check_password_hash(user.get("password", ""), password) and user.get("role") == role:
             session["username"] = username
             session["role"] = role
             redirect = "/quiz" if role == "student" else "/wrong"
@@ -74,7 +87,7 @@ def register_auth_routes(app):
 
         users[username] = {
             "username": username,
-            "password": password,
+            "password": generate_password_hash(password),
             "role": role,
             "phone": phone,
         }

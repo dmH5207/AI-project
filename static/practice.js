@@ -54,20 +54,20 @@
 
     isWaiting = true;
     submitBtn.disabled = true;
-    submitBtn.textContent = "AI 正在点评...";
+    submitBtn.textContent = window.currentLang === "en" ? "AI reviewing..." : "AI 正在点评...";
 
     fetch("/api/practice/step", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ step: currentStep, answer: text })
+      body: JSON.stringify({ step: currentStep, answer: text, lang: window.currentLang || "zh" })
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
         isWaiting = false;
-        submitBtn.textContent = "提交这一步";
+        submitBtn.textContent = window.currentLang === "en" ? "Submit" : "提交这一步";
 
         if (!data.success) {
-          alert(data.message || "出错了");
+          alert(data.message || (window.currentLang === "en" ? "Error occurred" : "出错了"));
           submitBtn.disabled = false;
           return;
         }
@@ -78,9 +78,9 @@
 
         // 更新进度
         if (data.finished) {
-          nextStepBtn.textContent = "查看报告";
+          nextStepBtn.textContent = window.currentLang === "en" ? "View Report" : "查看报告";
         } else {
-          nextStepBtn.textContent = "进入下一步";
+          nextStepBtn.textContent = window.currentLang === "en" ? "Next Step" : "进入下一步";
         }
 
         // 禁止继续编辑
@@ -93,8 +93,8 @@
       .catch(function () {
         isWaiting = false;
         submitBtn.disabled = false;
-        submitBtn.textContent = "提交这一步";
-        alert("网络错误，请稍后重试");
+        submitBtn.textContent = window.currentLang === "en" ? "Submit" : "提交这一步";
+        alert(window.currentLang === "en" ? "Network error, please retry later" : "网络错误，请稍后重试");
       });
   });
 
@@ -118,27 +118,28 @@
     answerInput.disabled = false;
     answerInput.value = "";
     submitBtn.disabled = true;
-    submitBtn.textContent = "提交这一步";
+    submitBtn.textContent = window.currentLang === "en" ? "Submit" : "提交这一步";
 
     fetch("/api/practice/step", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ step: index, fetch_only: true })
+      body: JSON.stringify({ step: index, fetch_only: true, lang: window.currentLang || "zh" })
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.success) {
-          alert(data.message || "无法加载该步骤");
+          alert(data.message || (window.currentLang === "en" ? "Cannot load this step" : "无法加载该步骤"));
           return;
         }
-        stepDimension.textContent = "维度：" + data.dimension;
-        stepQuestion.textContent = data.question;
-        progressText.textContent = "第 " + (index + 1) + " / " + totalSteps + " 步";
+        var isEn = window.currentLang === "en";
+        stepDimension.textContent = (isEn ? "Dimension: " : "维度：") + ((isEn && data.dimension_en) ? data.dimension_en : data.dimension);
+        stepQuestion.textContent = (isEn && data.question_en) ? data.question_en : data.question;
+        progressText.textContent = (isEn ? "Step " : "第 ") + (index + 1) + " / " + totalSteps + (isEn ? "" : " 步");
         updateStepDots(index + 1);
         answerInput.focus();
       })
       .catch(function () {
-        alert("网络错误");
+        alert(window.currentLang === "en" ? "Network error" : "网络错误");
       });
   }
 
@@ -149,15 +150,15 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.success) {
-          alert(data.message || "无法开始练习");
+          alert(data.message || (window.currentLang === "en" ? "Cannot start practice" : "无法开始练习"));
           return;
         }
-        taskTitle.textContent = data.task_title;
-        taskDesc.textContent = data.task_desc;
+        taskTitle.textContent = (window.currentLang === "en" && data.task_title_en) ? data.task_title_en : data.task_title;
+        taskDesc.textContent = (window.currentLang === "en" && data.task_desc_en) ? data.task_desc_en : data.task_desc;
         loadStep(0);
       })
       .catch(function () {
-        alert("网络错误，请刷新重试");
+        alert(window.currentLang === "en" ? "Network error, please refresh" : "网络错误，请刷新重试");
       });
   }
 
@@ -167,11 +168,15 @@
     taskArea.style.display = "none";
     reportArea.style.display = "";
 
-    fetch("/api/practice/end", { method: "POST" })
+    fetch("/api/practice/end", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang: window.currentLang || "zh" })
+    })
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.success) {
-          alert("生成报告失败");
+          alert(window.currentLang === "en" ? "Failed to generate report" : "生成报告失败");
           return;
         }
 
@@ -196,7 +201,7 @@
 
         window.scrollTo(0, 0);
       })
-      .catch(function () { alert("网络错误"); });
+      .catch(function () { alert(window.currentLang === "en" ? "Network error" : "网络错误"); });
   }
 
   function renderScoreTable(scores, total, max) {
@@ -215,7 +220,7 @@
     var totalRow = document.createElement("div");
     totalRow.className = "score-row total";
     totalRow.innerHTML =
-      '<span class="score-dim">总分</span>' +
+      '<span class="score-dim">' + (window.currentLang === "en" ? "Total" : "总分") + '</span>' +
       '<span class="score-num">' + (total || 0) + ' / ' + (max || 100) + '</span>';
     reportScoreTable.appendChild(totalRow);
   }

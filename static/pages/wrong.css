@@ -483,6 +483,46 @@
   font-weight: 500;
 }
 
+.practice-opt.is-wrong {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+  text-decoration: line-through;
+}
+
+.practice-opt.selected {
+  font-weight: 500;
+}
+
+.practice-opt {
+  cursor: pointer;
+}
+
+.practice-opt:hover {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.variant-feedback {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.variant-feedback.correct {
+  background: #f0fdf6;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.variant-feedback.wrong {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 .practice-hint {
   background: #fff;
   border-radius: 8px;

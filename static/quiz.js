@@ -57,7 +57,8 @@
           if (data.greeting.notLoggedIn) {
             greeting.textContent = t("pleaseLogin");
           } else {
-            greeting.textContent = t(data.greeting.timeKey) + "，" + data.greeting.display + "！" + t("greetingSuffix");
+            var isEn = window.currentLang === "en";
+            greeting.textContent = t(data.greeting.timeKey) + (isEn ? ", " : "，") + data.greeting.display + (isEn ? "!" : "！") + t("greetingSuffix");
           }
         }
 
@@ -137,28 +138,65 @@
     currentIndex = index;
     selectedAnswer = null;
 
+    var qtype = q.type || "single";
     progressText.textContent = (index + 1) + " / " + totalQuestions;
+    var isEn = window.currentLang === "en";
     progressFill.style.width = ((index + 1) / totalQuestions * 100) + "%";
-    dimensionLabel.textContent = (q.dimension || "—") + " · " + t("dimension");
-    questionText.textContent = q.question;
+    dimensionLabel.textContent = ((isEn && q.dimension_en) ? q.dimension_en : (q.dimension || "\u2014")) + " \u00b7 " + t("dimension");
+    questionText.textContent = (isEn && q.question_en) ? q.question_en : q.question;
 
+    var displayOptions = (isEn && q.options_en) ? q.options_en : (q.options || []);
     optionsBox.innerHTML = "";
-    q.options.forEach(function (opt, i) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "option-btn";
-      btn.textContent = opt;
-      btn.dataset.value = String.fromCharCode(65 + i);
-      btn.addEventListener("click", function () {
-        Array.prototype.forEach.call(optionsBox.children, function (el) {
-          el.classList.remove("selected");
+
+    if (qtype === "multi") {
+      var checked = [];
+      displayOptions.forEach(function (opt, i) {
+        var label = document.createElement("label");
+        label.className = "option-btn multi-opt";
+        var cb = document.createElement("input");
+        cb.type = "checkbox"; cb.value = String.fromCharCode(65 + i);
+        cb.style.marginRight = "8px";
+        cb.addEventListener("change", function () {
+          checked = [];
+          optionsBox.querySelectorAll("input:checked").forEach(function (c) { checked.push(c.value); });
+          selectedAnswer = checked.sort().join("");
+          nextBtn.disabled = checked.length === 0;
         });
-        btn.classList.add("selected");
-        selectedAnswer = btn.dataset.value;
-        nextBtn.disabled = false;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(opt));
+        optionsBox.appendChild(label);
       });
-      optionsBox.appendChild(btn);
-    });
+    } else if (qtype === "practice" || qtype === "scenario" || qtype === "design") {
+      var ta = document.createElement("textarea");
+      ta.className = "open-answer"; ta.rows = 6;
+      ta.style.cssText = "width:100%;padding:12px;border:1px solid #d0d5dd;border-radius:8px;font-size:15px;resize:vertical;";
+      ta.placeholder = isEn ? "Please enter your answer..." : "\u8bf7\u8f93\u5165\u4f60\u7684\u7b54\u6848...";
+      ta.addEventListener("input", function () {
+        selectedAnswer = ta.value.trim();
+        nextBtn.disabled = !selectedAnswer;
+      });
+      optionsBox.appendChild(ta);
+      if (q.scoring_points && q.scoring_points.length) {
+        var hint = document.createElement("div");
+        hint.style.cssText = "margin-top:8px;font-size:13px;color:#666;";
+        hint.textContent = (isEn ? "Scoring points: " : "\u8bc4\u5206\u8981\u70b9\uff1a") + q.scoring_points.join(isEn ? ", " : "\u3001");
+        optionsBox.appendChild(hint);
+      }
+    } else {
+      displayOptions.forEach(function (opt, i) {
+        var btn = document.createElement("button");
+        btn.type = "button"; btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.dataset.value = String.fromCharCode(65 + i);
+        btn.addEventListener("click", function () {
+          Array.prototype.forEach.call(optionsBox.children, function (el) { el.classList.remove("selected"); });
+          btn.classList.add("selected");
+          selectedAnswer = btn.dataset.value;
+          nextBtn.disabled = false;
+        });
+        optionsBox.appendChild(btn);
+      });
+    }
 
     nextBtn.disabled = true;
     nextBtn.textContent = (index + 1 === totalQuestions) ? t("submit") : t("nextQ");
@@ -175,7 +213,8 @@
       body: JSON.stringify({
         question_id: currentQuestion.id,
         answer: selectedAnswer,
-        mode: currentMode
+        mode: currentMode,
+        lang: window.currentLang || "zh"
       })
     })
       .then(function (res) { return res.json(); })

@@ -1,1 +1,47 @@
-{}
+{
+  "xfj": [
+    {
+      "task": {
+        "task_desc": "围绕一个你感兴趣的主题，借助 AI 快速浏览 2–3 篇资料，并整理成一段要点。",
+        "task_title": "用 AI 辅助完成一次文献速览"
+      },
+      "records": [
+        {
+          "answer": "1",
+          "dimension": "AI基础认知",
+          "dimension_key": "basic",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "2",
+          "dimension": "AI工具使用",
+          "dimension_key": "tools",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "3",
+          "dimension": "提示词工程",
+          "dimension_key": "prompt",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "answer": "4",
+          "dimension": "AI结果评估与优化",
+          "dimension_key": "evaluate",
+          "score": 0,
+          "weight": 20
+        },
+        {
+          "dimension": "人机协同解决问题",
+          "dimension_key": "collab",
+          "answer": "5",
+          "score": 0,
+          "weight": 20
+        }
+      ]
+    }
+  ]
+}

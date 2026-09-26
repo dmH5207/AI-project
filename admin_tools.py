@@ -8,6 +8,7 @@
 
 import os
 from flask import request, jsonify, session
+from werkzeug.security import generate_password_hash
 from storage import load_json, save_json
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
@@ -42,7 +43,7 @@ def _do_reset(username, new_password):
     if username not in users:
         return False, "账号不存在"
 
-    users[username]["password"] = new_password
+    users[username]["password"] = generate_password_hash(new_password)
     users[username].pop("reset_requested", None)   # 清掉申请重置的标记
     _save_users_dict(users)
 

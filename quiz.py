@@ -99,17 +99,40 @@ def _save_dialog_records(data):
 # 答题接口（客观题 / 实操题）
 # ================================================================
 
+def _format_question(q):
+    result = {
+        "id": q["id"],
+        "type": q.get("type", "single"),
+        "question": q["question"],
+        "options": q.get("options", []),
+        "dimension": q.get("dimension", "\u2014"),
+    }
+    if q.get("question_en"):
+        result["question_en"] = q["question_en"]
+    if q.get("options_en"):
+        result["options_en"] = q["options_en"]
+    if q.get("dimension_en"):
+        result["dimension_en"] = q["dimension_en"]
+    if q.get("analysis"):
+        result["analysis"] = q["analysis"]
+    if q.get("analysis_en"):
+        result["analysis_en"] = q["analysis_en"]
+    if q.get("reference"):
+        result["reference"] = q["reference"]
+    if q.get("scoring_points"):
+        result["scoring_points"] = q["scoring_points"]
+    return result
+
+
 def register_quiz_routes(app):
 
     @app.route("/api/modes", methods=["POST"])
     def modes():
-        username = session.get("username")
-
-        if not username:
-            stats = {m["key"]: {"count": 0, "last": None} for m in MODES}
+        username = session.get("username") or "anonymous"
+        stats = _user_stats(username)
+        if not session.get("username"):
             greeting = {"timeKey": "", "display": "", "notLoggedIn": True}
         else:
-            stats = _user_stats(username)
             greeting = _make_greeting(username)
 
         result = []
@@ -138,7 +161,7 @@ def register_quiz_routes(app):
         if not questions:
             return jsonify({"success": False, "message": "题库为空"})
 
-        total = min(len(questions), 10)
+        total = min(len(questions), 17)
         session["quiz_mode"] = mode
         session["quiz_ids"] = [q["id"] for q in questions[:total]]
         session["quiz_answers"] = []
@@ -147,12 +170,7 @@ def register_quiz_routes(app):
         return jsonify({
             "success": True,
             "total": total,
-            "question": {
-                "id": first["id"],
-                "question": first["question"],
-                "options": first["options"],
-                "dimension": first.get("dimension", "—"),
-            },
+            "question": _format_question(first),
         })
 
     @app.route("/api/next", methods=["POST"])
@@ -173,12 +191,7 @@ def register_quiz_routes(app):
 
         return jsonify({
             "success": True,
-            "question": {
-                "id": q["id"],
-                "question": q["question"],
-                "options": q["options"],
-                "dimension": q.get("dimension", "—"),
-            },
+            "question": _format_question(q),
         })
 
     @app.route("/api/answer", methods=["POST"])
@@ -186,14 +199,25 @@ def register_quiz_routes(app):
         data = request.get_json() or {}
         qid = data.get("question_id")
         user_answer = data.get("answer")
+        lang = data.get("lang", "zh")
 
         questions = _get_questions()
         q = next((x for x in questions if x["id"] == qid), None)
         if not q:
             return jsonify({"success": False, "message": "题目不存在"})
 
-        correct_answer = q.get("answer")
-        correct = (user_answer == correct_answer)
+        qtype = q.get("type", "single")
+        correct_answer = q.get("answer", "")
+
+        if qtype == "multi":
+            correct = (sorted(user_answer.upper()) == sorted(correct_answer.upper()))
+        elif qtype in ("practice", "scenario", "design"):
+            dim_obj = {"key": q.get("dimension", ""), "name": q.get("dimension", ""), "name_en": q.get("dimension_en", q.get("dimension", "")), "weight": 20}
+            score, _ = ai.score_answer(dim_obj, user_answer, lang=lang)
+            correct = score >= 12
+            correct_answer = q.get("reference", "（参考答案见解析）")
+        else:
+            correct = (user_answer == correct_answer)
 
         log = session.get("quiz_answers", [])
         log.append({"question_id": qid, "correct": correct})
@@ -214,11 +238,18 @@ def register_quiz_routes(app):
             })
             _save_wrong(wrong)
 
-        return jsonify({
+        result = {
             "success": True,
             "correct": correct,
             "correct_answer": correct_answer,
-        })
+        }
+        if q.get("analysis"):
+            result["analysis"] = q["analysis"]
+        if q.get("analysis_en"):
+            result["analysis_en"] = q["analysis_en"]
+        if q.get("reference"):
+            result["reference"] = q["reference"]
+        return jsonify(result)
 
     @app.route("/api/report_now", methods=["POST"])
     def report_now():
@@ -227,10 +258,9 @@ def register_quiz_routes(app):
         correct = sum(1 for x in log if x.get("correct"))
         score = round(correct / total * 100) if total else 0
 
-        username = session.get("username")
+        username = session.get("username") or "anonymous"
         mode = session.get("quiz_mode", "objective")
-        if username:
-            _bump_stats(username, mode, score)
+        _bump_stats(username, mode, score)
 
         return jsonify({
             "success": True,
@@ -256,17 +286,21 @@ def register_dialog_routes(app):
             return jsonify({"success": False, "message": "维度配置错误"})
 
         question = ai.generate_question(d["key"])
+        question_en = ai.generate_question(d["key"], lang="en")
         return jsonify({
             "success": True,
             "round": 1,
             "dimension": d["name"],
+            "dimension_en": d.get("name_en", d["name"]),
             "question": question,
+            "question_en": question_en,
         })
 
     @app.route("/api/dialog/reply", methods=["POST"])
     def dialog_reply():
         data = request.get_json() or {}
         user_answer = (data.get("answer") or "").strip()
+        lang = data.get("lang", "zh")
 
         if not user_answer:
             return jsonify({"success": False, "message": "回答不能为空"})
@@ -278,12 +312,11 @@ def register_dialog_routes(app):
         if not d:
             return jsonify({"success": False, "message": "会话异常"})
 
-        # 按 rubric 评分
-        score, _ = ai.score_answer(d, user_answer)
+        score, _ = ai.score_answer(d, user_answer, lang=lang)
 
-        # 记录这一轮
         records.append({
             "dimension": d["name"],
+            "dimension_en": d.get("name_en", d["name"]),
             "dimension_key": d["key"],
             "answer": user_answer,
             "score": score,
@@ -292,8 +325,22 @@ def register_dialog_routes(app):
         session["dialog_records"] = records
         session["dialog_index"] = index + 1
 
-        # 生成点评 + 追问
-        reply = ai.generate_reply(d["key"], user_answer)
+        if score < d["weight"] * 0.6:
+            username = session.get("username") or "anonymous"
+            wrong = _get_wrong()
+            wrong.setdefault(username, []).append({
+                "id": f"dialog_{index}_{d['key']}",
+                "question": ai.generate_question(d["key"]),
+                "options": [],
+                "user_answer": user_answer,
+                "correct_answer": "（对话题，参考AI点评）",
+                "dimension": d["name"],
+                "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "mastered": False,
+            })
+            _save_wrong(wrong)
+
+        reply = ai.generate_reply(d["key"], user_answer, lang=lang)
 
         next_index = index + 1
         finished = (next_index >= len(ai.DIMENSIONS))
@@ -315,21 +362,37 @@ def register_dialog_routes(app):
             })
 
         nd = ai.get_dimension(next_index)
-        next_question = ai.generate_question(nd["key"])
-        full_reply = reply + "\n\n【下一轮 · " + nd["name"] + "】\n" + next_question
+        next_question = ai.generate_question(nd["key"], lang=lang)
+        next_question_en = ai.generate_question(nd["key"], lang="en")
+        if lang == "en":
+            full_reply = reply + "\n\n[Next Round · " + nd.get("name_en", nd["name"]) + "]\n" + next_question
+        else:
+            full_reply = reply + "\n\n【下一轮 · " + nd["name"] + "】\n" + next_question
 
         return jsonify({
             "success": True,
             "round": next_index,
             "dimension": nd["name"],
+            "dimension_en": nd.get("name_en", nd["name"]),
             "reply": full_reply,
+            "next_question": next_question,
+            "next_question_en": next_question_en,
             "finished": False,
         })
 
     @app.route("/api/dialog/end", methods=["POST"])
     def dialog_end():
+        data = request.get_json() or {}
+        lang = data.get("lang", "zh")
         records = session.get("dialog_records", [])
-        report = ai.generate_report(records)
+        report = ai.generate_report(records, lang=lang)
+
+        username = session.get("username") or "anonymous"
+        total_score = report.get("total_score", 0)
+        max_score = report.get("max_score", 1) or 1
+        score = round(total_score / max_score * 100)
+        _bump_stats(username, "dialog", score)
+
         return jsonify({
             "success": True,
             "comment": report["comment"],
@@ -369,7 +432,9 @@ def register_practice_routes(app):
         return jsonify({
             "success": True,
             "task_title": task["task_title"],
+            "task_title_en": task.get("task_title_en", task["task_title"]),
             "task_desc": task["task_desc"],
+            "task_desc_en": task.get("task_desc_en", task["task_desc"]),
         })
 
     @app.route("/api/practice/step", methods=["POST"])
@@ -378,29 +443,31 @@ def register_practice_routes(app):
         index = int(data.get("step", 0))
         fetch_only = data.get("fetch_only", False)
         user_answer = (data.get("answer") or "").strip()
+        lang = data.get("lang", "zh")
 
         step = ai.get_practice_step(index)
         if not step:
             return jsonify({"success": False, "message": "步骤不存在"})
 
-        # 1) 只取题（页面切换到某一步时调）
         if fetch_only:
             return jsonify({
                 "success": True,
                 "step": index,
                 "dimension": step["dimension"],
+                "dimension_en": step.get("dimension_en", step["dimension"]),
                 "question": step["question"],
+                "question_en": step.get("question_en", step["question"]),
             })
 
-        # 2) 提交回答
         if not user_answer:
             return jsonify({"success": False, "message": "回答不能为空"})
 
-        score, _ = ai.score_practice_step(step, user_answer)
+        score, _ = ai.score_practice_step(step, user_answer, lang=lang)
 
         records = session.get("practice_records", [])
         records.append({
             "dimension": step["dimension"],
+            "dimension_en": step.get("dimension_en", step["dimension"]),
             "dimension_key": step["dimension_key"],
             "answer": user_answer,
             "score": score,
@@ -409,7 +476,22 @@ def register_practice_routes(app):
         session["practice_records"] = records
         session["practice_step"] = index + 1
 
-        feedback = ai.generate_practice_feedback(step, user_answer)
+        if score < step["weight"] * 0.6:
+            username = session.get("username") or "anonymous"
+            wrong = _get_wrong()
+            wrong.setdefault(username, []).append({
+                "id": f"practice_{index}_{step['dimension_key']}",
+                "question": step["question"],
+                "options": [],
+                "user_answer": user_answer,
+                "correct_answer": "（实操题，参考AI反馈）",
+                "dimension": step["dimension"],
+                "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "mastered": False,
+            })
+            _save_wrong(wrong)
+
+        feedback = ai.generate_practice_feedback(step, user_answer, lang=lang)
 
         finished = (index + 1 >= len(ai.PRACTICE_STEPS))
 
@@ -424,15 +506,28 @@ def register_practice_routes(app):
 
         return jsonify({
             "success": True,
-            "step": index + 1,       # 已完成的步数
+            "step": index + 1,
             "finished": finished,
             "feedback": feedback,
+            "dimension": step["dimension"],
+            "dimension_en": step.get("dimension_en", step["dimension"]),
+            "question": step["question"],
+            "question_en": step.get("question_en", step["question"]),
         })
 
     @app.route("/api/practice/end", methods=["POST"])
     def practice_end():
+        data = request.get_json() or {}
+        lang = data.get("lang", "zh")
         records = session.get("practice_records", [])
-        report = ai.generate_practice_report(records)
+        report = ai.generate_practice_report(records, lang=lang)
+
+        username = session.get("username") or "anonymous"
+        total_score = report.get("total_score", 0)
+        max_score = report.get("max_score", 1) or 1
+        score = round(total_score / max_score * 100)
+        _bump_stats(username, "practice", score)
+
         return jsonify({
             "success": True,
             "comment": report["comment"],

@@ -1,32 +1,24 @@
-{
-  "_说明": "这个文件放所有题目数据。照下面的格式，把六个维度的题目填进去。",
+[
+  {"id": 1, "question": "人工智能（AI）最核心的特征是什么？", "question_en": "What is the core characteristic of AI?", "options": ["A. 需要人工操作", "B. 能够学习和推理", "C. 只能做计算", "D. 必须联网才能使用"], "options_en": ["A. Requires manual operation", "B. Can learn and reason", "C. Can only calculate", "D. Must be online to use"], "answer": "B", "dimension": "AI基础认知", "dimension_en": "AI Fundamentals"},
+  {"id": 2, "question": "以下哪个不是常见的 AI 工具？", "question_en": "Which of the following is NOT a common AI tool?", "options": ["A. ChatGPT", "B. Microsoft Copilot", "C. Microsoft Word", "D. 通义千问"], "options_en": ["A. ChatGPT", "B. Microsoft Copilot", "C. Microsoft Word", "D. Tongyi Qianwen"], "answer": "C", "dimension": "AI工具使用", "dimension_en": "AI Tools"},
+  {"id": 3, "question": "好的提示词（Prompt）通常不需要包含哪个要素？", "question_en": "Which element is NOT needed in a good prompt?", "options": ["A. 明确的角色设定", "B. 具体的任务描述", "C. 期望的输出格式", "D. AI 模型的参数配置"], "options_en": ["A. Clear role setting", "B. Specific task description", "C. Expected output format", "D. AI model parameter config"], "answer": "D", "dimension": "提示词工程", "dimension_en": "Prompt Engineering"},
+  {"id": 4, "question": "AI 幻觉（Hallucination）是指什么？", "question_en": "What is AI Hallucination?", "options": ["A. AI 产生的视觉错误", "B. AI 生成看似合理但实际错误的内容", "C. AI 运行速度太快", "D. AI 需要太多内存"], "options_en": ["A. Visual errors produced by AI", "B. AI generates plausible but incorrect content", "C. AI runs too fast", "D. AI needs too much memory"], "answer": "B", "dimension": "AI结果评估与优化", "dimension_en": "AI Evaluation"},
+  {"id": 5, "question": "以下哪个属于 AI 伦理问题？", "question_en": "Which is an AI ethics issue?", "options": ["A. AI 运行效率低", "B. AI 训练数据中的偏见导致不公平输出", "C. AI 界面不够美观", "D. AI 不支持中文"], "options_en": ["A. Low AI efficiency", "B. Bias in training data causing unfair output", "C. Poor UI design", "D. No Chinese support"], "answer": "B", "dimension": "AI伦理与安全", "dimension_en": "AI Ethics"},
+  {"id": 6, "question": "人机协同的最佳实践是什么？", "question_en": "What is the best practice for human-AI collaboration?", "options": ["A. 完全依赖 AI 做决定", "B. 人类做所有工作，AI 只做展示", "C. 人类负责判断和决策，AI 负责数据处理和生成", "D. 不使用 AI"], "options_en": ["A. Rely entirely on AI", "B. Humans do everything, AI just displays", "C. Humans judge & decide, AI processes & generates", "D. Don't use AI"], "answer": "C", "dimension": "人机协同解决问题", "dimension_en": "Human-AI Collaboration"},
+  {"id": 7, "question": "机器学习与深度学习的关系是？", "question_en": "What is the relationship between ML and DL?", "options": ["A. 两者完全相同", "B. 深度学习是机器学习的子集", "C. 机器学习是深度学习的子集", "D. 两者毫无关系"], "options_en": ["A. They are identical", "B. DL is a subset of ML", "C. ML is a subset of DL", "D. They are unrelated"], "answer": "B", "dimension": "AI基础认知", "dimension_en": "AI Fundamentals"},
+  {"id": 8, "question": "使用 AI 工具时，以下哪种做法最合理？", "question_en": "Which is the most reasonable practice when using AI tools?", "options": ["A. 直接复制 AI 输出作为最终结果", "B. 对 AI 输出进行核实和修改后再使用", "C. 不需要了解 AI 的局限性", "D. 只使用一种 AI 工具"], "options_en": ["A. Copy AI output directly as final result", "B. Verify and modify AI output before using", "C. No need to understand AI limitations", "D. Use only one AI tool"], "answer": "B", "dimension": "AI工具使用", "dimension_en": "AI Tools"},
+  {"id": 9, "question": "提示词中加入示例（Few-shot）的目的是什么？", "question_en": "What is the purpose of adding examples (Few-shot) to a prompt?", "options": ["A. 增加输入长度", "B. 让 AI 按照示例的格式和风格输出", "C. 测试 AI 的记忆能力", "D. 减少回答时间"], "options_en": ["A. Increase input length", "B. Make AI follow the example format and style", "C. Test AI memory", "D. Reduce response time"], "answer": "B", "dimension": "提示词工程", "dimension_en": "Prompt Engineering"},
+  {"id": 10, "question": "验证 AI 生成内容可靠性的最佳方式是？", "question_en": "What is the best way to verify AI-generated content?", "options": ["A. 完全信任 AI 输出", "B. 与权威来源交叉验证", "C. 只看 AI 的置信度分数", "D. 不需要验证"], "options_en": ["A. Fully trust AI output", "B. Cross-verify with authoritative sources", "C. Only check AI confidence score", "D. No verification needed"], "answer": "B", "dimension": "AI结果评估与优化", "dimension_en": "AI Evaluation"},
+  {"id": 11, "type": "single", "question": "大语言模型（LLM）的主要能力来源于以下哪项技术？", "question_en": "What technology mainly powers Large Language Models (LLMs)?", "options": ["A. 数据库索引技术", "B. 深度学习与大规模预训练", "C. 操作系统调度算法", "D. 网络传输协议优化"], "options_en": ["A. Database indexing", "B. Deep learning & large-scale pre-training", "C. OS scheduling algorithms", "D. Network protocol optimization"], "answer": "B", "analysis": "大语言模型通过海量数据预训练，利用深度学习模型学习语言规律。", "analysis_en": "LLMs learn language patterns through massive data pre-training with deep learning.", "dimension": "AI基础认知", "dimension_en": "AI Fundamentals"},
+  {"id": 12, "type": "judge", "question": "生成式AI可以保证生成的信息全部准确，不需要人工验证。", "question_en": "Generative AI guarantees all generated information is accurate, no human verification needed.", "options": ["A. 正确", "B. 错误"], "options_en": ["A. True", "B. False"], "answer": "B", "analysis": "生成式AI可能产生幻觉，需要人工审核和结果评估。", "analysis_en": "Generative AI may hallucinate; human review and evaluation are needed.", "dimension": "AI基础认知", "dimension_en": "AI Fundamentals"},
+  {"id": 13, "type": "single", "question": "以下哪项属于AI伦理问题？", "question_en": "Which is an AI ethics issue?", "options": ["A. 模型运行速度慢", "B. GPU显存不足", "C. AI输出包含偏见内容", "D. 网络连接失败"], "options_en": ["A. Slow model speed", "B. Insufficient GPU memory", "C. AI output contains biased content", "D. Network connection failure"], "answer": "C", "analysis": "AI输出偏见涉及算法公平性和伦理风险。", "analysis_en": "AI output bias involves algorithmic fairness and ethical risks.", "dimension": "AI伦理与安全", "dimension_en": "AI Ethics"},
+  {"id": 14, "type": "single", "question": "以下哪个提示词效果最好？", "question_en": "Which prompt works best?", "options": ["A. 写一篇文章", "B. 写一篇关于AI教育的文章", "C. 请写一篇1000字文章，主题为高校AI教育改革，面向大学教师，包含现状分析、问题和解决方案", "D. AI教育"], "options_en": ["A. Write an article", "B. Write an article about AI education", "C. Write a 1000-word article on AI education reform for university teachers, including analysis, problems and solutions", "D. AI education"], "answer": "C", "analysis": "优秀提示词包含任务目标、背景、对象、格式要求等。", "analysis_en": "Good prompts include task goals, context, audience, and format requirements.", "dimension": "提示词工程", "dimension_en": "Prompt Engineering"},
 
-  "dimensions": {
+  {"id": 16, "type": "single", "question": "以下哪种任务最适合使用代码生成类AI？", "question_en": "Which task is best suited for code-generation AI?", "options": ["A. 查询天气", "B. 编写数据分析脚本", "C. 打印文件", "D. 修改电脑密码"], "options_en": ["A. Check weather", "B. Write data analysis scripts", "C. Print files", "D. Change computer password"], "answer": "B", "analysis": "代码生成模型可以辅助编写、解释和优化程序代码。", "analysis_en": "Code generation models can help write, explain and optimize code.", "dimension": "AI工具使用", "dimension_en": "AI Tools"},
+  {"id": 17, "type": "multi", "question": "以下哪些属于常见AI应用场景？", "question_en": "Which are common AI application scenarios?", "options": ["A. 文本生成", "B. 图像生成", "C. 数据分析辅助", "D. 人工替代所有决策"], "options_en": ["A. Text generation", "B. Image generation", "C. Data analysis assistance", "D. Replace all human decisions"], "answer": "ABC", "analysis": "AI可以辅助决策，但不能完全替代人的判断。", "analysis_en": "AI can assist decisions but cannot fully replace human judgment.", "dimension": "AI工具使用", "dimension_en": "AI Tools"},
+  {"id": 18, "type": "single", "question": "AI生成了一份报告，其中包含不存在的数据来源。用户首先应该：", "question_en": "AI generated a report with non-existent data sources. The user should first:", "options": ["A. 直接发布报告", "B. 删除所有内容", "C. 验证信息真实性并要求AI修正", "D. 相信AI不需要检查"], "options_en": ["A. Publish the report directly", "B. Delete all content", "C. Verify information and ask AI to correct", "D. Trust AI without checking"], "answer": "C", "analysis": "AI输出需要事实核查，尤其涉及数据和引用时。", "analysis_en": "AI output needs fact-checking, especially for data and citations.", "dimension": "AI结果评估与优化", "dimension_en": "AI Evaluation"},
 
-    "维度英文key_1": {
-      "name": "维度中文名称，比如 AI基础认知",
-      "basic": [
-        {
-          "id": "d1_b1",
-          "text": "题干文字写在这里",
-          "options": ["A. 选项一", "B. 选项二", "C. 选项三", "D. 选项四"],
-          "answer": "B"
-        }
-      ],
-      "advanced": [
-        {
-          "id": "d1_a1",
-          "text": "进阶题题干",
-          "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
-          "answer": "A"
-        }
-      ],
-      "open": {
-        "id": "d1_open1",
-        "text": "开放式题目的题干",
-        "rubric": "评分标准写在这里"
-      }
-    }
 
-  }
-}
+  {"id": 21, "type": "judge", "question": "在开发AI应用时，只要模型效果好，就可以直接收集用户所有数据用于训练。", "question_en": "When developing AI apps, if the model performs well, you can collect all user data for training.", "options": ["A. 正确", "B. 错误"], "options_en": ["A. True", "B. False"], "answer": "B", "analysis": "AI系统需要保护用户隐私，数据采集和使用应符合相关规范。", "analysis_en": "AI systems must protect user privacy; data collection should comply with regulations.", "dimension": "AI伦理与安全", "dimension_en": "AI Ethics"},
+  {"id": 22, "type": "single", "question": "以下哪种行为符合AI版权规范？", "question_en": "Which behavior complies with AI copyright norms?", "options": ["A. 未授权复制他人的训练数据", "B. 使用AI生成内容后进行审核和标注来源", "C. 发布AI输出但声称完全人工创作", "D. 删除所有版权信息"], "options_en": ["A. Unauthorized copying of training data", "B. Review and attribute sources after using AI content", "C. Publish AI output claiming fully human-created", "D. Delete all copyright info"], "answer": "B", "dimension": "AI伦理与安全", "dimension_en": "AI Ethics"}
+]
